@@ -1,7 +1,6 @@
 // Layout Components
 export { default as Header } from "./layout/Header";
 export { default as SmartAccountPlayground } from "./layout/SmartAccountPlayground";
-export { default as SignInScreen } from "./layout/SignInScreen";
 export { default as ClientApp } from "./layout/ClientApp";
 
 // Feature Components
@@ -13,8 +12,6 @@ export { default as UserBalance } from "./features/UserBalance";
 export { default as NetworkSelector } from "./ui/NetworkSelector";
 export { default as PaymasterSettings } from "./ui/PaymasterSettings";
 export { default as Loading } from "./ui/Loading";
-export { default as Icons } from "./ui/Icons";
 
 // Other Components
 export { default as Providers } from "./Providers";
-export { default as theme } from "./theme";
