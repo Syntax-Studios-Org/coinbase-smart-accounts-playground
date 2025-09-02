@@ -51,18 +51,14 @@ export default function PaymasterSettings({
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
-              <label htmlFor="paymaster-url" className="block text-xs font-medium text-gray-700">
-                Paymaster URL
-              </label>
-              <input
-                id="paymaster-url"
-                type="url"
-                value={paymasterUrl}
-                onChange={(e) => onPaymasterUrlChange(e.target.value)}
-                placeholder="https://your-paymaster.example.com"
-                className="block w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-              />
+            <div className="bg-orange-50 border border-orange-200 rounded-md p-3">
+              <div className="flex items-center gap-2">
+                <span className="text-orange-600 text-xs">⚙️</span>
+                <span className="text-xs font-medium text-orange-800">Configure in Paymaster tab</span>
+              </div>
+              <p className="text-orange-700 text-xs mt-1">
+                Set paymaster URL in the Paymaster tab
+              </p>
             </div>
           )}
         </div>

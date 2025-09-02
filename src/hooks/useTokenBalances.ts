@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useEvmAddress } from "@coinbase/cdp-hooks";
 import { formatUnits } from "viem";
-import { SWAP_CONFIG } from "@/constants/config";
 import type {
   Token,
   TokenBalance,
@@ -9,10 +8,6 @@ import type {
   ApiTokenBalance,
 } from "@/types/swap";
 import type { SupportedNetwork } from "@/constants/tokens";
-
-interface PricesApiResponse {
-  prices: Record<string, number | null>;
-}
 
 export const useTokenBalances = (
   network: SupportedNetwork,
@@ -35,28 +30,17 @@ export const useTokenBalances = (
     setError(null);
 
     try {
-      // Fetch balances and prices concurrently
-      const [balancesResponse, pricesResponse] = await Promise.all([
-        fetch("/api/balances", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            address: evmAddress,
-            network,
-          }),
+      // Fetch balances only
+      const balancesResponse = await fetch("/api/balances", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          address: evmAddress,
+          network,
         }),
-        fetch("/api/prices", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            tokenIds: tokens.map((token) => token.coingeckoTokenId),
-          }),
-        }),
-      ]);
+      });
 
       if (!balancesResponse.ok) {
         throw new Error("Failed to fetch balances");
@@ -65,15 +49,6 @@ export const useTokenBalances = (
       const balancesResult: TokenBalancesApiResponse =
         await balancesResponse.json();
 
-      // Handle prices response - don't fail if prices fail
-      let pricesResult: PricesApiResponse | null = null;
-      if (pricesResponse.ok) {
-        pricesResult = await pricesResponse.json();
-      } else {
-        console.warn("Failed to fetch prices, continuing without USD values");
-      }
-
-      let totalUsd = 0;
       const balances: TokenBalance[] = tokens.map((token) => {
         const apiBalance = balancesResult.balances?.find(
           (balance: ApiTokenBalance) =>
@@ -91,25 +66,16 @@ export const useTokenBalances = (
         const formattedBalance = formatUnits(balance, decimals);
         const numericBalance = parseFloat(formattedBalance);
 
-        // Calculate USD value
-        const tokenPrice = pricesResult?.prices[token.coingeckoTokenId] || null;
-        const usdValue =
-          tokenPrice && numericBalance > 0 ? numericBalance * tokenPrice : 0;
-
-        if (usdValue > 0) {
-          totalUsd += usdValue;
-        }
-
         return {
           token,
           balance,
           formattedBalance: numericBalance.toFixed(6),
-          usdValue,
+          usdValue: 0, // No USD values needed
         };
       });
 
       setData(balances);
-      setTotalUsdBalance(totalUsd);
+      setTotalUsdBalance(0);
     } catch (err) {
       const error =
         err instanceof Error ? err : new Error("Failed to fetch balances");
@@ -124,22 +90,20 @@ export const useTokenBalances = (
         usdValue: 0,
       }));
       setData(fallbackBalances);
-      setTotalUsdBalance(0);
     } finally {
       setIsLoading(false);
     }
-  }, [evmAddress, network, tokens]);
+  }, [evmAddress, network]); // Removed 'tokens' from dependencies
 
   useEffect(() => {
     fetchBalances();
+  }, [evmAddress, network]); // Only re-fetch when address or network changes
 
-    // Auto-refresh token balances
-    const interval = setInterval(
-      fetchBalances,
-      SWAP_CONFIG.BALANCE_REFRESH_INTERVAL,
-    );
+  useEffect(() => {
+    // Auto-refresh token balances every 30 seconds
+    const interval = setInterval(fetchBalances, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchBalances]);
 
   return { data, isLoading, error, refetch: fetchBalances, totalUsdBalance };
 };

@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { useCurrentUser, useSendUserOperation } from "@coinbase/cdp-hooks";
-import { Button } from "@coinbase/cdp-react/components/ui/Button";
-import { LoadingSkeleton } from "@coinbase/cdp-react/components/ui/LoadingSkeleton";
 import { isAddress, isHex } from "viem";
 
 interface CustomCall {
@@ -28,7 +26,7 @@ export default function CustomCallBuilder({
 }: CustomCallBuilderProps) {
   const { currentUser } = useCurrentUser();
   const { sendUserOperation, data, error, status } = useSendUserOperation();
-  
+
   const [calls, setCalls] = useState<CustomCall[]>([
     { to: "", value: "0", data: "0x" },
   ]);
@@ -57,24 +55,24 @@ export default function CustomCallBuilder({
   const validateCalls = (): string | null => {
     for (let i = 0; i < calls.length; i++) {
       const call = calls[i];
-      
+
       if (!call.to) {
         return `Call ${i + 1}: Target address is required`;
       }
-      
+
       if (!isAddress(call.to)) {
         return `Call ${i + 1}: Invalid target address format`;
       }
-      
+
       if (call.value && isNaN(parseFloat(call.value))) {
         return `Call ${i + 1}: Invalid value format`;
       }
-      
+
       if (call.data && !isHex(call.data)) {
         return `Call ${i + 1}: Data must be valid hex (starting with 0x)`;
       }
     }
-    
+
     return null;
   };
 
@@ -151,114 +149,113 @@ export default function CustomCallBuilder({
 
   if (isSuccess && data) {
     return (
-      <div className="transaction-success">
-        <h3 className="card-title">✅ Custom Calls Executed!</h3>
-        <p>Successfully executed {calls.length} call(s) in a single transaction</p>
-        <p>
+      <div className="p-6 text-center">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">✅ Custom Calls Executed!</h3>
+        <p className="text-gray-600 mb-4">Successfully executed {calls.length} call(s) in a single transaction</p>
+        <p className="mb-6">
           Transaction:{" "}
           <a
             href={`https://${network === "base-sepolia" ? "sepolia." : ""}basescan.org/tx/${data.transactionHash}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="tx-link"
+            className="text-primary-600 hover:text-primary-500 font-mono"
           >
             {data.transactionHash?.slice(0, 6)}...{data.transactionHash?.slice(-4)}
           </a>
         </p>
-        <Button onClick={handleReset} variant="secondary" className="tx-button">
+        <button onClick={handleReset} className="btn-secondary">
           Build More Calls
-        </Button>
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="custom-call-container">
-      <h3 className="card-title">⚙️ Custom Call Builder</h3>
-      <p className="feature-description">
+    <div className="p-6">
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">⚙️ Custom Call Builder</h3>
+      <p className="text-gray-600 mb-6">
         Build and execute custom smart contract calls. Batch multiple operations into a single transaction for maximum efficiency.
       </p>
 
       {errorMessage && (
-        <div className="error-message">
-          <span className="error-icon">❌</span>
-          {errorMessage}
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center gap-2">
+            <span className="text-red-500">❌</span>
+            <span className="text-red-800">{errorMessage}</span>
+          </div>
         </div>
       )}
 
-      <div className="preset-buttons">
-        <h4>Quick Presets:</h4>
-        <div className="preset-row">
-          <Button
+      <div className="mb-6">
+        <h4 className="text-sm font-medium text-gray-900 mb-3">Quick Presets:</h4>
+        <div className="flex gap-2 flex-wrap">
+          <button
             onClick={() => loadPreset("erc20-transfer")}
-            variant="secondary"
-            size="sm"
+            className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-md text-sm transition-colors"
           >
             ERC20 Transfer
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={() => loadPreset("multi-call")}
-            variant="secondary"
-            size="sm"
+            className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-md text-sm transition-colors"
           >
             Multi-Call
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={() => loadPreset("contract-interaction")}
-            variant="secondary"
-            size="sm"
+            className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-md text-sm transition-colors"
           >
             Contract Call
-          </Button>
+          </button>
         </div>
       </div>
 
-      <div className="calls-container">
+      <div className="space-y-4 mb-6">
         {calls.map((call, index) => (
-          <div key={index} className="call-row">
-            <div className="call-header">
-              <span className="call-label">Call {index + 1}</span>
+          <div key={index} className="border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-4">
+              <span className="font-medium text-gray-900">Call {index + 1}</span>
               {calls.length > 1 && (
                 <button
                   onClick={() => removeCall(index)}
-                  className="remove-call"
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-md transition-colors"
                   type="button"
                 >
                   ✕
                 </button>
               )}
             </div>
-            
-            <div className="call-inputs">
-              <div className="input-group">
-                <label className="input-label">To (Contract Address)</label>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">To (Contract Address)</label>
                 <input
                   type="text"
                   value={call.to}
                   onChange={(e) => updateCall(index, "to", e.target.value)}
                   placeholder="0x..."
-                  className="address-input"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 />
               </div>
-              
-              <div className="input-group">
-                <label className="input-label">Value (Wei)</label>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Value (Wei)</label>
                 <input
                   type="text"
                   value={call.value}
                   onChange={(e) => updateCall(index, "value", e.target.value)}
                   placeholder="0"
-                  className="value-input"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 />
               </div>
-              
-              <div className="input-group">
-                <label className="input-label">Data (Hex)</label>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Data (Hex)</label>
                 <textarea
                   value={call.data}
                   onChange={(e) => updateCall(index, "data", e.target.value)}
                   placeholder="0x..."
-                  className="data-input"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 font-mono text-sm"
                   rows={3}
                 />
               </div>
@@ -267,46 +264,47 @@ export default function CustomCallBuilder({
         ))}
       </div>
 
-      <div className="custom-call-actions">
-        <Button
+      <div className="flex items-center justify-between mb-6">
+        <button
           onClick={addCall}
-          variant="secondary"
-          className="add-call-btn"
           disabled={isLoading}
+          className="btn-secondary"
         >
           + Add Call
-        </Button>
-        
-        <Button
+        </button>
+
+        <button
           onClick={handleExecuteCalls}
           disabled={isLoading || !smartAccount}
-          className="tx-button"
+          className="btn-primary"
         >
           {isLoading ? (
-            <>
-              <LoadingSkeleton className="loading--btn-text" />
-              Executing...
-            </>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              Executing Calls...
+            </div>
           ) : (
             `Execute ${calls.length} Call${calls.length > 1 ? "s" : ""}`
           )}
-        </Button>
+        </button>
       </div>
 
       {usePaymaster && (
-        <div className="gasless-info">
-          <span className="gasless-badge">⛽ Gasless Transaction</span>
-          <span className="gasless-text">No gas fees required</span>
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center gap-2">
+            <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">⛽ Gasless</span>
+            <span className="text-green-700 text-sm">No gas fees required</span>
+          </div>
         </div>
       )}
 
-      <div className="call-info">
-        <h4>💡 Tips:</h4>
-        <ul>
-          <li>Use the presets to get started quickly</li>
-          <li>Value should be in Wei (1 ETH = 1000000000000000000 Wei)</li>
-          <li>Data should be valid hex starting with 0x</li>
-          <li>All calls execute atomically - if one fails, all fail</li>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h4 className="text-sm font-medium text-blue-900 mb-2">💡 Tips:</h4>
+        <ul className="text-sm text-blue-800 space-y-1">
+          <li>• Use the presets to get started quickly</li>
+          <li>• Value should be in Wei (1 ETH = 1000000000000000000 Wei)</li>
+          <li>• Data should be valid hex starting with 0x</li>
+          <li>• All calls execute atomically - if one fails, all fail</li>
         </ul>
       </div>
     </div>

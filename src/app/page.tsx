@@ -1,5 +1,5 @@
 "use client";
-import ClientApp from "@/components/ClientApp";
+import ClientApp from "@/components/layout/ClientApp";
 import Providers from "@/components/Providers";
 
 /**
