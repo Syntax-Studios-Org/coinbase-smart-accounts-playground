@@ -7,31 +7,27 @@ export const BASE_SEPOLIA_TOKENS: Record<string, Token> = {
     symbol: "ETH",
     name: "Ethereum",
     decimals: 18,
-    logoUrl: "/icons/eth.svg",
-    coingeckoTokenId: "ethereum"
+    logoUrl: "/icons/eth.svg"
   },
   USDC: {
-    address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    address: "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
     symbol: "USDC",
     name: "USD Coin",
     decimals: 6,
     logoUrl: "/icons/usdc.svg",
-    coingeckoTokenId: "usd-coin"
   },
-  WETH: {
-    address: "0x4200000000000000000000000000000000000006",
-    symbol: "WETH",
-    name: "Wrapped Ether",
-    decimals: 18,
-    logoUrl: "/icons/weth.svg",
-    coingeckoTokenId: "weth"
-  },
-  DAI: {
-    address: "0x7683022d84f726a96c4a6611cd31dbf5409c0ac9",
-    symbol: "DAI",
-    name: "Dai Stablecoin",
-    decimals: 18,
-    logoUrl: "/icons/dai.svg",
-    coingeckoTokenId: "dai"
-  },
+  CBBTC: {
+     address: "0xcbb7c0006f23900c38eb856149f799620fcb8a4a",
+     symbol: "cbBTC",
+     name: "Coinbase Wrapped BTC",
+     decimals: 8,
+     logoUrl: "/icons/cbbtc.webp",
+   },
+   EURC: {
+     address: "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+     symbol: "EURC",
+     name: "EURO Coin",
+     decimals: 6,
+     logoUrl: "/icons/eurc.svg",
+   },
 };
