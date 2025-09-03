@@ -24,7 +24,7 @@ export const BASE_SEPOLIA_TOKENS: Record<string, Token> = {
      logoUrl: "/icons/cbbtc.webp",
    },
    EURC: {
-     address: "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+     address: "0x808456652fdb597867f38412077A9182bf77359F",
      symbol: "EURC",
      name: "EURO Coin",
      decimals: 6,
