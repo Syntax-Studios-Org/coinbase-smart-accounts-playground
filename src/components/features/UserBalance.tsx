@@ -154,7 +154,7 @@ export default function UserBalance(props: Props) {
           href="https://portal.cdp.coinbase.com/products/faucet"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary-600 hover:text-primary-500"
+          className="text-primary-600 hover:text-primary-500 text-blue-400 underline"
         >
           Base Sepolia Faucet
         </a>
