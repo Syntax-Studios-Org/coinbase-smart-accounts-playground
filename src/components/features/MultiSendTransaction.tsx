@@ -165,7 +165,7 @@ export default function MultiSendTransaction({
         ? network === "base-sepolia"
           ? { useCdpPaymaster: true }
           : paymasterUrl
-          ? { useCdpPaymaster: true }
+          ? { paymasterUrl }
           : {}
         : {};
 

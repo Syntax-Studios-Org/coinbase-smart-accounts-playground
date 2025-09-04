@@ -7,8 +7,7 @@ import UserBalance from "@/components/features/UserBalance";
 import MultiSendTransaction from "@/components/features/MultiSendTransaction";
 import CustomCallBuilder from "@/components/features/CustomCallBuilder";
 import PaymasterTab from "@/components/features/PaymasterTab";
-import PaymasterSettings from "@/components/ui/PaymasterSettings";
-import NetworkSelector from "@/components/ui/NetworkSelector";
+import { PaymasterSettings, NetworkSelector } from "@/components";
 
 type PlaygroundTab = "multi-send" | "custom-calls" | "paymaster";
 
@@ -16,13 +15,10 @@ type PlaygroundTab = "multi-send" | "custom-calls" | "paymaster";
  * Smart Account Playground - Main component showcasing CDP Smart Account features
  */
 export default function SmartAccountPlayground() {
-  const { currentUser } = useCurrentUser();
   const [activeTab, setActiveTab] = useState<PlaygroundTab>("multi-send");
   const [selectedNetwork, setSelectedNetwork] = useState<"base" | "base-sepolia">("base-sepolia");
   const [usePaymaster, setUsePaymaster] = useState(true);
   const [paymasterUrl, setPaymasterUrl] = useState("");
-
-  const smartAccount = currentUser?.evmSmartAccounts?.[0];
 
   const tabs = [
     { id: "multi-send" as const, label: "Multi Send", icon: "📤" },
@@ -33,7 +29,7 @@ export default function SmartAccountPlayground() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="flex h-[calc(100vh-73px)]">
         {/* Left Sidebar - Tab Navigation */}
         <div className="w-64 bg-white border-r border-gray-200 p-4">
@@ -57,7 +53,7 @@ export default function SmartAccountPlayground() {
 
           {/* Network & Paymaster Settings */}
           <div className="mt-8 space-y-4">
-            <NetworkSelector 
+            <NetworkSelector
               selectedNetwork={selectedNetwork}
               onNetworkChange={setSelectedNetwork}
             />

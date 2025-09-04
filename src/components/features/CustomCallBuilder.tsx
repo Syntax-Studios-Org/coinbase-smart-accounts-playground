@@ -45,6 +45,8 @@ export default function CustomCallBuilder({
   const [storageValue, setStorageValue] = useState<string | null>(null);
   const [loadingStorage, setLoadingStorage] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showStorageContract, setShowStorageContract] = useState(false);
+  const [storageInputValue, setStorageInputValue] = useState("42");
 
   const smartAccount = currentUser?.evmSmartAccounts?.[0];
   const isLoading = status === "pending";
@@ -173,6 +175,7 @@ export default function CustomCallBuilder({
     setCalls([{ to: "", value: "0", data: "0x" }]);
     setErrorMessage("");
     setShowSuccess(false);
+    setShowStorageContract(false);
   };
 
   const loadPreset = (
@@ -212,10 +215,11 @@ export default function CustomCallBuilder({
         ]);
         break;
       case "simple-storage-set":
+        const setValue = BigInt(storageInputValue || "42");
         const setData = encodeFunctionData({
           abi: SIMPLE_STORAGE_ABI,
           functionName: "set",
-          args: [BigInt(42)], // Set value to 42
+          args: [setValue],
         });
         setCalls([
           {
@@ -224,6 +228,7 @@ export default function CustomCallBuilder({
             data: setData,
           },
         ]);
+        setShowStorageContract(true);
         break;
       case "simple-storage-get":
         // For get function, we'll just refresh the displayed value
@@ -270,7 +275,7 @@ export default function CustomCallBuilder({
           </a>
         </p>
         <button onClick={handleReset} className="btn-secondary">
-          Build More Calls
+          Send Another Custom Call
         </button>
       </div>
     );
@@ -300,13 +305,24 @@ export default function CustomCallBuilder({
           Quick Presets:
         </h4>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          <button
-            onClick={() => loadPreset("simple-storage-set")}
-            className="bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-2 px-3 rounded-md text-sm transition-colors"
-            title="Set value to 42 in SimpleStorage contract"
-          >
-            📝 Set(42)
-          </button>
+          <div className="space-y-2 w-full">
+            <div className="flex items-center gap-2 justify-between">
+              <input
+                type="number"
+                value={storageInputValue}
+                onChange={(e) => setStorageInputValue(e.target.value)}
+                placeholder="42"
+                className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <button
+                onClick={() => loadPreset("simple-storage-set")}
+                className="bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-2 px-3 rounded-md text-sm transition-colors w-full"
+                title="Set custom value in SimpleStorage contract"
+              >
+                📝 Set Value
+              </button>
+            </div>
+          </div>
           <button
             onClick={() => loadPreset("erc20-transfer")}
             className="bg-purple-100 hover:bg-purple-200 text-purple-700 font-medium py-2 px-3 rounded-md text-sm transition-colors"
@@ -323,7 +339,8 @@ export default function CustomCallBuilder({
           </button>
         </div>
 
-        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        {showStorageContract && (
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-center justify-between mb-2">
             <h5 className="text-sm font-medium text-blue-900">
               📋 SimpleStorage Contract
@@ -364,7 +381,8 @@ export default function CustomCallBuilder({
               <strong>Functions:</strong> set(uint256) | get() → uint256
             </div>
           </div>
-        </div>
+          </div>
+        )}
       </div>
 
       <div className="space-y-4 mb-6">
@@ -471,7 +489,6 @@ export default function CustomCallBuilder({
           <li>• Use the presets to get started quickly</li>
           <li>• Value should be in Wei (1 ETH = 1000000000000000000 Wei)</li>
           <li>• Data should be valid hex starting with 0x</li>
-          <li>• All calls execute atomically - if one fails, all fail</li>
         </ul>
       </div>
     </div>

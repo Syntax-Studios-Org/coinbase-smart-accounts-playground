@@ -2,9 +2,8 @@
 
 import { useIsInitialized, useIsSignedIn } from "@coinbase/cdp-hooks";
 
-import Loading from "@/components/ui/Loading";
-import SignedInScreen from "@/components/SignedInScreen";
-import SignInScreen from "@/components/SignInScreen";
+import { Loading, SignInScreen } from "@/components";
+import SmartAccountPlayground from "@/components/layout/SmartAccountPlayground";
 
 /**
  * A component that displays the client app.
@@ -19,7 +18,7 @@ export default function ClientApp() {
       {isInitialized && (
         <>
           {!isSignedIn && <SignInScreen />}
-          {isSignedIn && <SignedInScreen />}
+          {isSignedIn && <SmartAccountPlayground />}
         </>
       )}
     </div>
