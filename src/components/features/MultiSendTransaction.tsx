@@ -38,10 +38,11 @@ export default function MultiSendTransaction({
   const [errorMessage, setErrorMessage] = useState("");
   const [addressErrors, setAddressErrors] = useState<Record<number, string>>({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isLocalLoading, setIsLocalLoading] = useState(false);
 
   const smartAccount = currentUser?.evmSmartAccounts?.[0];
   const tokens = SUPPORTED_NETWORKS[network];
-  const isLoading = status === "pending";
+  const isLoading = status === "pending" || isLocalLoading;
   const isSuccess = status === "success" && data && showSuccess;
 
   // Get token balances for max button functionality
@@ -104,6 +105,7 @@ export default function MultiSendTransaction({
     if (hasErrors) return;
 
     try {
+      setIsLocalLoading(true);
       setErrorMessage("");
 
       // Build calls for multi-send
@@ -163,6 +165,8 @@ export default function MultiSendTransaction({
       setShowSuccess(true);
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Transaction failed");
+    } finally {
+      setIsLocalLoading(false);
     }
   };
 
@@ -172,6 +176,7 @@ export default function MultiSendTransaction({
     setErrorMessage("");
     setAddressErrors({});
     setShowSuccess(false);
+    setIsLocalLoading(false);
   };
 
   // Success state
@@ -208,7 +213,7 @@ export default function MultiSendTransaction({
 
       <div className="flex-1 mx-[20%] px-6 pb-6">
         {errorMessage && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="bg-red-50 border-none rounded-lg p-4 py-2 mb-6">
             <div className="flex items-center gap-2">
               <span className="text-red-500">❌</span>
               <span className="text-red-800">{errorMessage}</span>

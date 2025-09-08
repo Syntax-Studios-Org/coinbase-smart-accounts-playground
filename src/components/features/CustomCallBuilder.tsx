@@ -10,6 +10,7 @@ import {
   ChevronUp,
   ChevronDown,
   Plus,
+  FileCode2,
 } from "lucide-react";
 import { useCurrentUser, useSendUserOperation } from "@coinbase/cdp-hooks";
 import {
@@ -59,9 +60,10 @@ export default function CustomCallBuilder({
   const [loadingStorage, setLoadingStorage] = useState(false);
   const [showStorageContract, setShowStorageContract] = useState(false);
   const [storageInputValue, setStorageInputValue] = useState("42");
+  const [isLocalLoading, setIsLocalLoading] = useState(false);
 
   const smartAccount = currentUser?.evmSmartAccounts?.[0];
-  const isLoading = status === "pending";
+  const isLoading = status === "pending" || isLocalLoading;
   const isSuccess = status === "success" && data && showSuccess;
 
   // Read storage value from contract
@@ -222,6 +224,7 @@ export default function CustomCallBuilder({
     if (hasErrors) return;
 
     try {
+      setIsLocalLoading(true);
       setErrorMessage("");
 
       const formattedCalls = calls.map((call) => ({
@@ -250,6 +253,8 @@ export default function CustomCallBuilder({
       setErrorMessage(
         err instanceof Error ? err.message : "Transaction failed",
       );
+    } finally {
+      setIsLocalLoading(false);
     }
   };
 
@@ -260,6 +265,7 @@ export default function CustomCallBuilder({
     setShowSuccess(false);
     setShowStorageContract(false);
     setStorageValue(null);
+    setIsLocalLoading(false);
   };
 
   // Success state
@@ -295,14 +301,14 @@ export default function CustomCallBuilder({
   return (
     <div className="flex flex-col h-full">
       <ScreenHeader
-        icon={Settings}
+        icon={FileCode2}
         title="Custom Calls"
         description="Build and execute custom smart contract calls. Batch multiple operations into a single transaction for maximum efficiency."
       />
 
       <div className="flex-1 mx-[20%] px-6 pb-6">
         {errorMessage && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="bg-red-50 border-none rounded-lg p-4 py-2 mb-6">
             <div className="flex items-center gap-2">
               <span className="text-red-500">❌</span>
               <span className="text-red-800">{errorMessage}</span>
@@ -340,7 +346,7 @@ export default function CustomCallBuilder({
             <h4 className="text-sm font-medium text-gray-900 mb-4">
               Simple Storage Contract
             </h4>
-            
+
             {/* Set New Value Section */}
             <div className="bg-white rounded-lg p-4 mb-4">
               <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -378,7 +384,7 @@ export default function CustomCallBuilder({
               </div>
               <p className="text-xs text-gray-500 mt-1">Enter a number to store in the contract</p>
             </div>
-            
+
             {/* Current Value Section */}
             <div className="bg-white rounded-lg p-4 mb-4">
               <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -400,7 +406,7 @@ export default function CustomCallBuilder({
               </div>
               <p className="text-xs text-gray-500 mt-1">Current value stored in the contract</p>
             </div>
-            
+
             {/* Contract Info */}
             <div className="text-xs text-gray-600 bg-white rounded-lg p-3">
               <span className="font-medium">Contract Address:</span>{" "}
@@ -516,7 +522,6 @@ export default function CustomCallBuilder({
           })}
         </div>
 
-        {/* Add New Call - Full Width */}
         <div className="bg-[#FAFAFA] rounded-lg p-4 py-2 mb-6">
           <button
             onClick={addCall}
