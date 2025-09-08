@@ -18,9 +18,9 @@ export default function AddressDropdown({ selectedNetwork }: AddressDropdownProp
   const { currentUser } = useCurrentUser();
   const smartAccount = currentUser?.evmSmartAccounts?.[0];
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const networkLabel = selectedNetwork === "base-sepolia" ? "TESTNET" : "MAINNET";
-  
+
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -42,7 +42,7 @@ export default function AddressDropdown({ selectedNetwork }: AddressDropdownProp
         <Image
           src="/address-image.png"
           alt="Address"
-          className="rounded-md"
+          className="rounded-xs"
           width={32}
           height={32}
         />

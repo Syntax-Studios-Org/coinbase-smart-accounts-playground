@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronsRight, Trash2, ChevronUp, ChevronDown, Plus } from "lucide-react";
 import { useCurrentUser, useSendUserOperation } from "@coinbase/cdp-hooks";
 import { parseUnits, isAddress, formatUnits, encodeFunctionData } from "viem";
 import { SUPPORTED_NETWORKS } from "@/constants/tokens";
 import { useTokenBalances } from "@/hooks/useTokenBalances";
+import ScreenHeader from "@/components/ui/ScreenHeader";
 
 interface MultiSendRecipient {
   address: string;
@@ -32,6 +34,7 @@ export default function MultiSendTransaction({
   const [recipients, setRecipients] = useState<MultiSendRecipient[]>([
     { address: "", amount: "", token: "ETH" },
   ]);
+  const [collapsedRecipients, setCollapsedRecipients] = useState<boolean[]>([false]);
   const [errorMessage, setErrorMessage] = useState("");
   const [addressErrors, setAddressErrors] = useState<Record<number, string>>({});
   const [showSuccess, setShowSuccess] = useState(false);
@@ -46,12 +49,20 @@ export default function MultiSendTransaction({
 
   const addRecipient = () => {
     setRecipients([...recipients, { address: "", amount: "", token: "ETH" }]);
+    setCollapsedRecipients([...collapsedRecipients, false]);
   };
 
   const removeRecipient = (index: number) => {
     if (recipients.length > 1) {
       setRecipients(recipients.filter((_, i) => i !== index));
+      setCollapsedRecipients(collapsedRecipients.filter((_, i) => i !== index));
     }
+  };
+
+  const toggleRecipientCollapse = (index: number) => {
+    const newCollapsed = [...collapsedRecipients];
+    newCollapsed[index] = !newCollapsed[index];
+    setCollapsedRecipients(newCollapsed);
   };
 
   const updateRecipient = (index: number, field: keyof MultiSendRecipient, value: string) => {
@@ -71,86 +82,58 @@ export default function MultiSendTransaction({
     }
   };
 
-  const setMaxAmount = (index: number, tokenSymbol: string) => {
-    const token = tokens[tokenSymbol];
-    const tokenBalance = tokenBalances?.find(tb => tb.token.symbol === tokenSymbol);
-
-    if (tokenBalance && tokenBalance.balance > 0n) {
-      const maxAmount = formatUnits(tokenBalance.balance, token.decimals);
-      updateRecipient(index, "amount", maxAmount);
-    }
-  };
-
-  const validateInputs = (): string | null => {
-    for (let i = 0; i < recipients.length; i++) {
-      const recipient = recipients[i];
-
-      if (!recipient.address) {
-        return `Recipient ${i + 1}: Address is required`;
-      }
-
-      if (!isAddress(recipient.address)) {
-        return `Recipient ${i + 1}: Invalid address format`;
-      }
-
-      if (!recipient.amount || parseFloat(recipient.amount) <= 0) {
-        return `Recipient ${i + 1}: Amount must be greater than 0`;
-      }
-    }
-
-    return null;
-  };
-
   const handleMultiSend = async () => {
     if (!smartAccount) {
-      setErrorMessage("No Smart Account found");
+      setErrorMessage("Smart account not found");
       return;
     }
 
-    // Check for address errors
-    if (Object.keys(addressErrors).length > 0) {
-      setErrorMessage("Please fix address validation errors");
-      return;
-    }
+    // Validate all recipients
+    const hasErrors = recipients.some((recipient, index) => {
+      if (!recipient.address || !isAddress(recipient.address)) {
+        setErrorMessage(`Invalid address for recipient ${index + 1}`);
+        return true;
+      }
+      if (!recipient.amount || parseFloat(recipient.amount) <= 0) {
+        setErrorMessage(`Invalid amount for recipient ${index + 1}`);
+        return true;
+      }
+      return false;
+    });
 
-    const validationError = validateInputs();
-    if (validationError) {
-      setErrorMessage(validationError);
-      return;
-    }
+    if (hasErrors) return;
 
     try {
       setErrorMessage("");
 
-      // Build calls for each recipient
+      // Build calls for multi-send
       const calls = recipients.map((recipient) => {
         const token = tokens[recipient.token];
         const amount = parseUnits(recipient.amount, token.decimals);
 
-        if (token.symbol === "ETH") {
+        if (recipient.token === "ETH") {
           // Native ETH transfer
           return {
             to: recipient.address as `0x${string}`,
             value: amount,
-            data: "0x" as `0x${string}`,
+            data: "0x" as const,
           };
         } else {
-          // ERC20 transfer using proper ABI encoding
+          // ERC-20 transfer
           const transferData = encodeFunctionData({
             abi: [
               {
-                name: 'transfer',
-                type: 'function',
+                name: "transfer",
+                type: "function",
                 inputs: [
-                  { name: 'to', type: 'address' },
-                  { name: 'amount', type: 'uint256' }
+                  { name: "to", type: "address" },
+                  { name: "amount", type: "uint256" },
                 ],
-                outputs: [{ name: '', type: 'bool' }],
-                stateMutability: 'nonpayable'
-              }
+                outputs: [{ name: "", type: "bool" }],
+              },
             ],
-            functionName: 'transfer',
-            args: [recipient.address as `0x${string}`, amount]
+            functionName: "transfer",
+            args: [recipient.address as `0x${string}`, amount],
           });
 
           return {
@@ -165,8 +148,8 @@ export default function MultiSendTransaction({
         ? network === "base-sepolia"
           ? { useCdpPaymaster: true }
           : paymasterUrl
-          ? { paymasterUrl }
-          : {}
+            ? { paymasterUrl }
+            : {}
         : {};
 
       await sendUserOperation({
@@ -185,17 +168,19 @@ export default function MultiSendTransaction({
 
   const handleReset = () => {
     setRecipients([{ address: "", amount: "", token: "ETH" }]);
+    setCollapsedRecipients([false]);
     setErrorMessage("");
     setAddressErrors({});
-    setShowSuccess(false); // Hide success state to return to form
+    setShowSuccess(false);
   };
 
-  if (isSuccess && data) {
+  // Success state
+  if (isSuccess) {
     return (
-      <div className="p-6 text-center">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">✅ Multi-Send Complete!</h3>
-        <p className="text-gray-600 mb-4">Successfully sent tokens to {recipients.length} recipient(s)</p>
-        <p className="mb-6">
+      <div className="text-center py-8">
+        <div className="text-6xl mb-4">🎉</div>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">Multi-Send Successful!</h3>
+        <p className="text-gray-600 mb-4">
           Transaction:{" "}
           <a
             href={`https://${network === "base-sepolia" ? "sepolia." : ""}basescan.org/tx/${data.transactionHash}`}
@@ -214,108 +199,185 @@ export default function MultiSendTransaction({
   }
 
   return (
-    <div className="p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">📤 Multi Send Tokens</h3>
-      <p className="text-gray-600 mb-6">
-        Send tokens to multiple recipients in a single transaction. Save on gas and improve efficiency with batch operations.
-      </p>
+    <div className="flex flex-col h-full">
+      <ScreenHeader
+        icon={ChevronsRight}
+        title="MultiSend"
+        description="Send tokens to multiple recipients in a single transaction. Save on gas and improve efficiency with batch operations."
+      />
 
-      {errorMessage && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center gap-2">
-            <span className="text-red-500">❌</span>
-            <span className="text-red-800">{errorMessage}</span>
-          </div>
-        </div>
-      )}
-
-      <div className="space-y-4 mb-6">
-        {recipients.map((recipient, index) => (
-          <div key={index} className="border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-medium text-gray-900">Recipient {index + 1}</span>
-              {recipients.length > 1 && (
-                <button
-                  onClick={() => removeRecipient(index)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-md transition-colors"
-                  type="button"
-                >
-                  ✕
-                </button>
-              )}
+      <div className="flex-1 mx-[20%] px-6 pb-6">
+        {errorMessage && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2">
+              <span className="text-red-500">❌</span>
+              <span className="text-red-800">{errorMessage}</span>
             </div>
+          </div>
+        )}
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                <input
-                  type="text"
-                  value={recipient.address}
-                  onChange={(e) => updateRecipient(index, "address", e.target.value)}
-                  placeholder="0x..."
-                  className={`block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 ${
-                    addressErrors[index] ? "border-red-300 bg-red-50" : "border-gray-300"
-                  }`}
-                />
-                {addressErrors[index] && (
-                  <p className="text-red-500 text-xs mt-1">{addressErrors[index]}</p>
+        <div className="space-y-4 mb-6">
+          {recipients.map((recipient, index) => {
+            const isCollapsed = collapsedRecipients[index];
+            const tokenBalance = tokenBalances?.find(tb => tb.token.symbol === recipient.token);
+
+            return (
+              <div key={index} className="bg-[#FAFAFA] rounded-lg">
+                {/* Header */}
+                <div className="flex items-center justify-between p-4 py-2">
+                  <span className="font-medium text-gray-900">Recipient {index + 1}</span>
+                  <div className="flex items-center">
+                    {recipients.length > 1 && (
+                      <>
+                        <button
+                          onClick={() => removeRecipient(index)}
+                          className="text-red-500 hover:text-red-700 p-2 transition-colors"
+                          type="button"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <div className="w-px h-6 bg-gray-300 mx-2" />
+                      </>
+                    )}
+                    <button
+                      onClick={() => toggleRecipientCollapse(index)}
+                      className="text-gray-500 hover:text-gray-700 p-2 transition-colors"
+                      type="button"
+                    >
+                      {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Content */}
+                {!isCollapsed && (
+                  <div className="px-4 pb-4">
+                    <div className="bg-white rounded-lg p-4">
+                      {/* Top Half */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        {/* Wallet Address */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-900 mb-1">
+                            Wallet Address
+                          </label>
+                          <input
+                            type="text"
+                            value={recipient.address}
+                            onChange={(e) => updateRecipient(index, "address", e.target.value)}
+                            placeholder="0x..."
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">Enter the address</p>
+                          {addressErrors[index] && (
+                            <p className="text-xs text-red-500 mt-1">{addressErrors[index]}</p>
+                          )}
+                        </div>
+
+                        {/* Token Selector */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-900 mb-1">
+                            Select a token
+                          </label>
+                          <div className="relative">
+                            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center pointer-events-none">
+                              {tokens[recipient.token].logoUrl && (
+                                <img
+                                  src={tokens[recipient.token].logoUrl}
+                                  alt={recipient.token}
+                                  className="w-4 h-4 rounded-full"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                  }}
+                                />
+                              )}
+                            </div>
+                            <select
+                              value={recipient.token}
+                              onChange={(e) => updateRecipient(index, "token", e.target.value)}
+                              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+                            >
+                              {Object.entries(tokens).map(([symbol, token]) => (
+                                <option key={symbol} value={symbol}>
+                                  {token.name} | ${symbol}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Make sure you select the correct token</p>
+                        </div>
+                      </div>
+
+                      {/* Bottom Half */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-sm font-medium text-gray-900">
+                            Transfer Amount
+                          </label>
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <span>Bal: {tokenBalance?.formattedBalance || "0"}</span>
+                            <button
+                              onClick={() => {
+                                if (tokenBalance) {
+                                  updateRecipient(index, "amount", tokenBalance.formattedBalance);
+                                }
+                              }}
+                              className="text-blue-600 hover:text-blue-800 font-medium"
+                              type="button"
+                            >
+                              MAX
+                            </button>
+                          </div>
+                        </div>
+                        <input
+                          type="number"
+                          value={recipient.amount}
+                          onChange={(e) => updateRecipient(index, "amount", e.target.value)}
+                          placeholder="0.0"
+                          step="any"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Amount of tokens you want to send</p>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
+            );
+          })}
+        </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    value={recipient.amount}
-                    onChange={(e) => updateRecipient(index, "amount", e.target.value)}
-                    placeholder="0.0"
-                    step="any"
-                    min="0"
-                    className="block w-full px-3 py-2 pr-16 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setMaxAmount(index, recipient.token)}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors"
-                  >
-                    MAX
-                  </button>
-                </div>
-              </div>
+        {/* Add New Recipient - Full Width */}
+        <div className="bg-[#FAFAFA] rounded-lg p-4 py-2 mb-6">
+          <button
+            onClick={addRecipient}
+            disabled={isLoading}
+            className="w-full text-center text-gray-700 hover:text-gray-900 transition-colors flex items-center justify-center space-x-4"
+          >
+            Add a new recipient <span><Plus size={16} /></span>
+          </button>
+        </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Token</label>
-                <select
-                  value={recipient.token}
-                  onChange={(e) => updateRecipient(index, "token", e.target.value)}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                >
-                  {Object.entries(tokens).map(([symbol, token]) => (
-                    <option key={symbol} value={symbol}>
-                      {token.symbol}
-                    </option>
-                  ))}
-                </select>
-              </div>
+
+        {usePaymaster && (
+          <div className="bg-[#0ED0651A] border-none rounded-lg p-2 mb-6">
+            <div className="flex items-center justify-between">
+              <span className="text-[#0ED065] text-sm">No Gas Fees Required</span>
+              <span className="bg-[#0ED065] text-white text-xs font-medium px-3 py-1 rounded-lg">Gasless</span>
             </div>
           </div>
-        ))}
+        )}
       </div>
 
-      <div className="flex items-center justify-between mb-6">
-        <button
-          onClick={addRecipient}
-          disabled={isLoading}
-          className="btn-secondary"
-        >
-          + Add Recipient
-        </button>
+      {/* Footer - Always at Bottom */}
+      <div className="bg-white border-t border-gray-200 p-4 flex items-center justify-between">
+        <span className="text-sm text-gray-600">
+          {recipients.length} Recipient{recipients.length > 1 ? "s" : ""}
+        </span>
 
         <button
           onClick={handleMultiSend}
           disabled={isLoading || !smartAccount}
-          className="btn-primary"
+          className="bg-[#0075FF] text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <div className="flex items-center gap-2">
@@ -323,19 +385,10 @@ export default function MultiSendTransaction({
               Sending Transaction...
             </div>
           ) : (
-            `Send to ${recipients.length} Recipient${recipients.length > 1 ? "s" : ""}`
+            "Send"
           )}
         </button>
       </div>
-
-      {usePaymaster && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center gap-2">
-            <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">⛽ Gasless</span>
-            <span className="text-green-700 text-sm">No gas fees required</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
