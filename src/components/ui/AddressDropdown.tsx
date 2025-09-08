@@ -1,0 +1,89 @@
+"use client";
+
+import { useCurrentUser, useIsSignedIn } from "@coinbase/cdp-hooks";
+import { AuthButton } from "@coinbase/cdp-react/components/AuthButton";
+import { useState } from "react";
+import { ChevronDown, Copy } from "lucide-react";
+import Image from "next/image";
+
+interface AddressDropdownProps {
+  selectedNetwork: "base" | "base-sepolia";
+}
+
+/**
+ * Address dropdown component for the top left corner
+ */
+export default function AddressDropdown({ selectedNetwork }: AddressDropdownProps) {
+  const { isSignedIn } = useIsSignedIn();
+  const { currentUser } = useCurrentUser();
+  const smartAccount = currentUser?.evmSmartAccounts?.[0];
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const networkLabel = selectedNetwork === "base-sepolia" ? "TESTNET" : "MAINNET";
+  
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  if (!isSignedIn || !smartAccount) {
+    return null;
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
+      >
+        <Image
+          src="/address-image.png"
+          alt="Address"
+          className="rounded-md"
+          width={32}
+          height={32}
+        />
+        <div className="flex flex-col items-start">
+          <span className="text-xs text-gray-500 uppercase font-medium">
+            {networkLabel}
+          </span>
+          <span className="font-mono text-sm text-gray-900">
+            {smartAccount.slice(0, 6)}...{smartAccount.slice(-4)}
+          </span>
+        </div>
+        <ChevronDown className="w-4 h-4 text-gray-500" />
+      </button>
+
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute top-full left-0 mt-1 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+            <div className="p-3 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs text-gray-900 break-all">
+                  {smartAccount}
+                </span>
+                <button
+                  onClick={() => copyToClipboard(smartAccount)}
+                  className="p-1 hover:bg-gray-100 rounded transition-colors ml-2 flex-shrink-0"
+                  title="Copy address"
+                >
+                  <Copy className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
+            </div>
+            <div className="p-2">
+              <AuthButton />
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

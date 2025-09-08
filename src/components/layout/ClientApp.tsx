@@ -13,7 +13,7 @@ export default function ClientApp() {
   const { isSignedIn } = useIsSignedIn();
 
   return (
-    <div className="app flex-col-container flex-grow">
+    <div className="app flex-col-container flex-grow bg-[#F5F5F5]">
       {!isInitialized && <Loading />}
       {isInitialized && (
         <>
