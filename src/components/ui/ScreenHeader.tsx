@@ -18,15 +18,15 @@ export default function ScreenHeader({ icon: Icon, title, description }: ScreenH
         <Icon className="w-6 h-6 text-gray-700" />
         <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
       </div>
-      <div 
+      <div
         className="border-b border-dashed border-gray-300 mb-6"
-        style={{ 
+        style={{
           borderBottomStyle: 'dashed',
           borderBottomWidth: '0.5px'
         }}
       />
-      <div className="mx-[20%]">
-        <p className="text-gray-600 mb-6">{description}</p>
+      <div className="mx-[15%]">
+        <p className="text-[#A3A3A3] text-xs font-normal tracking-tighter mb-6">{description}</p>
       </div>
     </div>
   );

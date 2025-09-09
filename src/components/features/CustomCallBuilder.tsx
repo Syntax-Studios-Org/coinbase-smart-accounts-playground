@@ -306,7 +306,7 @@ export default function CustomCallBuilder({
         description="Build and execute custom smart contract calls. Batch multiple operations into a single transaction for maximum efficiency."
       />
 
-      <div className="flex-1 mx-[20%] px-6 pb-6">
+      <div className="flex-1 mx-[15%] px-6 pb-6">
         {errorMessage && (
           <div className="bg-red-50 border-none rounded-lg p-4 py-2 mb-6">
             <div className="flex items-center gap-2">
@@ -328,11 +328,11 @@ export default function CustomCallBuilder({
                 <button
                   key={preset.name}
                   onClick={preset.action}
-                  className="bg-[#FAFAFA] rounded-lg p-3 text-left hover:bg-gray-100 transition-colors"
+                  className="bg-[#FAFAFA] rounded-lg p-3 text-center hover:bg-gray-100 transition-colors"
                 >
-                  <div className="flex items-center gap-3">
-                    <IconComponent className="w-4 h-4 text-gray-600" />
-                    <span className="text-sm text-gray-900">{preset.name}</span>
+                  <div className="flex items-center gap-1 justify-center">
+                    <IconComponent className="w-4 h-4 text-[#737373]" />
+                    <span className="text-xs text-[#737373] tracking-tight">{preset.name}</span>
                   </div>
                 </button>
               );
@@ -349,16 +349,17 @@ export default function CustomCallBuilder({
 
             {/* Set New Value Section */}
             <div className="bg-white rounded-lg p-4 mb-4">
-              <label className="block text-sm font-medium text-gray-900 mb-2">
+              <label className="block text-sm text-[#171717] tracking-tight">
                 Set New Value
               </label>
+              <p className="text-xs text-[#737373] tracking-tight mb-1">Enter a number to store in the contract</p>
               <div className="flex gap-3">
                 <input
                   type="number"
                   value={storageInputValue}
                   onChange={(e) => setStorageInputValue(e.target.value)}
                   placeholder="Enter number"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="flex-1 px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <button
                   onClick={() => {
@@ -382,16 +383,15 @@ export default function CustomCallBuilder({
                   Update Call
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">Enter a number to store in the contract</p>
             </div>
 
             {/* Current Value Section */}
             <div className="bg-white rounded-lg p-4 mb-4">
-              <label className="block text-sm font-medium text-gray-900 mb-2">
+              <label className="block text-sm text-[#171717] tracking-tight mb-2">
                 Current Value in Contract
               </label>
               <div className="flex gap-3">
-                <div className="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-900 font-mono">
+                <div className="flex-1 px-3 py-2 bg-gray-50 border border-[#E5E5E5] rounded-md text-gray-900 font-mono">
                   {loadingStorage
                     ? "Loading..."
                     : storageValue || "Not loaded"}
@@ -404,7 +404,6 @@ export default function CustomCallBuilder({
                   Refresh
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">Current value stored in the contract</p>
             </div>
 
             {/* Contract Info */}
@@ -423,8 +422,8 @@ export default function CustomCallBuilder({
             return (
               <div key={index} className="bg-[#FAFAFA] rounded-lg">
                 {/* Header */}
-                <div className="flex items-center justify-between p-4">
-                  <span className="font-medium text-gray-900">
+                <div className="flex items-center justify-between p-4 py-2">
+                  <span className="font-normal text-[13px] text-[#737373] tracking-tight">
                     Call {index + 1}
                   </span>
                   <div className="flex items-center">
@@ -460,9 +459,12 @@ export default function CustomCallBuilder({
                     <div className="bg-white rounded-lg p-4 space-y-4">
                       {/* Contract Address */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-1">
+                        <label className="block text-sm text-[#171717] tracking-tight">
                           Contract Address
                         </label>
+                        <p className="text-xs text-[#737373] tracking-tight mb-1">
+                          Enter the contract address
+                        </p>
                         <input
                           type="text"
                           value={call.to}
@@ -470,18 +472,18 @@ export default function CustomCallBuilder({
                             updateCall(index, "to", e.target.value)
                           }
                           placeholder="0x..."
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Enter the contract address
-                        </p>
                       </div>
 
                       {/* Value */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-1">
+                        <label className="block text-sm text-[#171717] tracking-tight">
                           Value (ETH)
                         </label>
+                        <p className="text-xs text-[#737373] tracking-tight mb-1">
+                          Amount of ETH to send (usually 0)
+                        </p>
                         <input
                           type="text"
                           value={call.value}
@@ -489,18 +491,18 @@ export default function CustomCallBuilder({
                             updateCall(index, "value", e.target.value)
                           }
                           placeholder="0"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Amount of ETH to send (usually 0)
-                        </p>
                       </div>
 
                       {/* Call Data */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-1">
+                        <label className="block text-sm text-[#171717] tracking-tight">
                           Call Data
                         </label>
+                        <p className="text-xs text-[#737373] tracking-tight mb-1">
+                          Encoded function call data
+                        </p>
                         <textarea
                           value={call.data}
                           onChange={(e) =>
@@ -508,11 +510,8 @@ export default function CustomCallBuilder({
                           }
                           placeholder="0x..."
                           rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Encoded function call data
-                        </p>
                       </div>
                     </div>
                   </div>
@@ -528,7 +527,7 @@ export default function CustomCallBuilder({
             disabled={isLoading}
             className="w-full text-center text-gray-700 hover:text-gray-900 transition-colors flex items-center justify-center space-x-4"
           >
-            Add a new recipient <span><Plus size={16} /></span>
+            Add a new call <span><Plus size={16} /></span>
           </button>
         </div>
 

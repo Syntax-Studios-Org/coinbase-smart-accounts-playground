@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronsRight, Trash2, ChevronUp, ChevronDown, Plus } from "lucide-react";
+import {
+  ChevronsRight,
+  Trash2,
+  ChevronUp,
+  ChevronDown,
+  Plus,
+} from "lucide-react";
 import { useCurrentUser, useSendUserOperation } from "@coinbase/cdp-hooks";
 import { parseUnits, isAddress, formatUnits, encodeFunctionData } from "viem";
 import { SUPPORTED_NETWORKS } from "@/constants/tokens";
@@ -34,9 +40,13 @@ export default function MultiSendTransaction({
   const [recipients, setRecipients] = useState<MultiSendRecipient[]>([
     { address: "", amount: "", token: "ETH" },
   ]);
-  const [collapsedRecipients, setCollapsedRecipients] = useState<boolean[]>([false]);
+  const [collapsedRecipients, setCollapsedRecipients] = useState<boolean[]>([
+    false,
+  ]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [addressErrors, setAddressErrors] = useState<Record<number, string>>({});
+  const [addressErrors, setAddressErrors] = useState<Record<number, string>>(
+    {},
+  );
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLocalLoading, setIsLocalLoading] = useState(false);
 
@@ -46,7 +56,10 @@ export default function MultiSendTransaction({
   const isSuccess = status === "success" && data && showSuccess;
 
   // Get token balances for max button functionality
-  const { data: tokenBalances } = useTokenBalances(network, Object.values(tokens));
+  const { data: tokenBalances } = useTokenBalances(
+    network,
+    Object.values(tokens),
+  );
 
   const addRecipient = () => {
     setRecipients([...recipients, { address: "", amount: "", token: "ETH" }]);
@@ -66,7 +79,11 @@ export default function MultiSendTransaction({
     setCollapsedRecipients(newCollapsed);
   };
 
-  const updateRecipient = (index: number, field: keyof MultiSendRecipient, value: string) => {
+  const updateRecipient = (
+    index: number,
+    field: keyof MultiSendRecipient,
+    value: string,
+  ) => {
     const updated = [...recipients];
     updated[index] = { ...updated[index], [field]: value };
     setRecipients(updated);
@@ -164,7 +181,9 @@ export default function MultiSendTransaction({
       // Show success state only after successful transaction
       setShowSuccess(true);
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Transaction failed");
+      setErrorMessage(
+        err instanceof Error ? err.message : "Transaction failed",
+      );
     } finally {
       setIsLocalLoading(false);
     }
@@ -184,7 +203,9 @@ export default function MultiSendTransaction({
     return (
       <div className="text-center py-8">
         <div className="text-6xl mb-4">🎉</div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">Multi-Send Successful!</h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          Multi-Send Successful!
+        </h3>
         <p className="text-gray-600 mb-4">
           Transaction:{" "}
           <a
@@ -193,7 +214,8 @@ export default function MultiSendTransaction({
             rel="noopener noreferrer"
             className="text-primary-600 hover:text-primary-500 font-mono"
           >
-            {data.transactionHash?.slice(0, 6)}...{data.transactionHash?.slice(-4)}
+            {data.transactionHash?.slice(0, 6)}...
+            {data.transactionHash?.slice(-4)}
           </a>
         </p>
         <button onClick={handleReset} className="btn-secondary">
@@ -211,7 +233,7 @@ export default function MultiSendTransaction({
         description="Send tokens to multiple recipients in a single transaction. Save on gas and improve efficiency with batch operations."
       />
 
-      <div className="flex-1 mx-[20%] px-6 pb-6">
+      <div className="flex-1 mx-[15%] px-6 pb-6">
         {errorMessage && (
           <div className="bg-red-50 border-none rounded-lg p-4 py-2 mb-6">
             <div className="flex items-center gap-2">
@@ -224,13 +246,17 @@ export default function MultiSendTransaction({
         <div className="space-y-4 mb-6">
           {recipients.map((recipient, index) => {
             const isCollapsed = collapsedRecipients[index];
-            const tokenBalance = tokenBalances?.find(tb => tb.token.symbol === recipient.token);
+            const tokenBalance = tokenBalances?.find(
+              (tb) => tb.token.symbol === recipient.token,
+            );
 
             return (
               <div key={index} className="bg-[#FAFAFA] rounded-lg">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 py-2">
-                  <span className="font-medium text-gray-900">Recipient {index + 1}</span>
+                  <span className="font-normal text-[13px] text-[#737373] tracking-tight">
+                    Recipient {index + 1}
+                  </span>
                   <div className="flex items-center">
                     {recipients.length > 1 && (
                       <>
@@ -249,7 +275,11 @@ export default function MultiSendTransaction({
                       className="text-gray-500 hover:text-gray-700 p-2 transition-colors"
                       type="button"
                     >
-                      {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                      {isCollapsed ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronUp className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -262,27 +292,36 @@ export default function MultiSendTransaction({
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         {/* Wallet Address */}
                         <div>
-                          <label className="block text-sm font-medium text-gray-900 mb-1">
+                          <label className="block text-sm text-[#171717] tracking-tight">
                             Wallet Address
                           </label>
+                          <p className="text-xs text-[#737373] tracking-tight mb-1">
+                            Enter the address
+                          </p>
                           <input
                             type="text"
                             value={recipient.address}
-                            onChange={(e) => updateRecipient(index, "address", e.target.value)}
+                            onChange={(e) =>
+                              updateRecipient(index, "address", e.target.value)
+                            }
                             placeholder="0x..."
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           />
-                          <p className="text-xs text-gray-500 mt-1">Enter the address</p>
                           {addressErrors[index] && (
-                            <p className="text-xs text-red-500 mt-1">{addressErrors[index]}</p>
+                            <p className="text-xs text-red-500 mt-1">
+                              {addressErrors[index]}
+                            </p>
                           )}
                         </div>
 
                         {/* Token Selector */}
                         <div>
-                          <label className="block text-sm font-medium text-gray-900 mb-1">
+                          <label className="block text-sm text-[#171717] tracking-tight">
                             Select a token
                           </label>
+                          <p className="text-xs text-[#737373] tracking-tight mb-1">
+                            Make sure you select the correct token
+                          </p>
                           <div className="relative">
                             <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center pointer-events-none">
                               {tokens[recipient.token].logoUrl && (
@@ -298,8 +337,10 @@ export default function MultiSendTransaction({
                             </div>
                             <select
                               value={recipient.token}
-                              onChange={(e) => updateRecipient(index, "token", e.target.value)}
-                              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+                              onChange={(e) =>
+                                updateRecipient(index, "token", e.target.value)
+                              }
+                              className="w-full pl-10 pr-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
                             >
                               {Object.entries(tokens).map(([symbol, token]) => (
                                 <option key={symbol} value={symbol}>
@@ -308,22 +349,27 @@ export default function MultiSendTransaction({
                               ))}
                             </select>
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">Make sure you select the correct token</p>
                         </div>
                       </div>
 
                       {/* Bottom Half */}
                       <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <label className="block text-sm font-medium text-gray-900">
+                        <div className="flex items-center justify-between">
+                          <label className="block text-sm text-[#171717] tracking-tight">
                             Transfer Amount
                           </label>
                           <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <span>Bal: {tokenBalance?.formattedBalance || "0"}</span>
+                            <span>
+                              Bal: {tokenBalance?.formattedBalance || "0"}
+                            </span>
                             <button
                               onClick={() => {
                                 if (tokenBalance) {
-                                  updateRecipient(index, "amount", tokenBalance.formattedBalance);
+                                  updateRecipient(
+                                    index,
+                                    "amount",
+                                    tokenBalance.formattedBalance,
+                                  );
                                 }
                               }}
                               className="text-blue-600 hover:text-blue-800 font-medium"
@@ -333,15 +379,19 @@ export default function MultiSendTransaction({
                             </button>
                           </div>
                         </div>
+                        <p className="text-xs text-[#737373] tracking-tight  mb-1">
+                          Amount of tokens you want to send
+                        </p>
                         <input
                           type="number"
                           value={recipient.amount}
-                          onChange={(e) => updateRecipient(index, "amount", e.target.value)}
+                          onChange={(e) =>
+                            updateRecipient(index, "amount", e.target.value)
+                          }
                           placeholder="0.0"
                           step="any"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Amount of tokens you want to send</p>
                       </div>
                     </div>
                   </div>
@@ -358,16 +408,22 @@ export default function MultiSendTransaction({
             disabled={isLoading}
             className="w-full text-center text-gray-700 hover:text-gray-900 transition-colors flex items-center justify-center space-x-4"
           >
-            Add a new recipient <span><Plus size={16} /></span>
+            Add a new recipient{" "}
+            <span>
+              <Plus size={16} />
+            </span>
           </button>
         </div>
-
 
         {usePaymaster && (
           <div className="bg-[#0ED0651A] border-none rounded-lg p-2 mb-6">
             <div className="flex items-center justify-between">
-              <span className="text-[#0ED065] text-sm">No Gas Fees Required</span>
-              <span className="bg-[#0ED065] text-white text-xs font-medium px-3 py-1 rounded-lg">Gasless</span>
+              <span className="text-[#0ED065] text-sm">
+                No Gas Fees Required
+              </span>
+              <span className="bg-[#0ED065] text-white text-xs font-medium px-3 py-1 rounded-lg">
+                Gasless
+              </span>
             </div>
           </div>
         )}

@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { useTokenBalances } from "@/hooks/useTokenBalances";
 import { SUPPORTED_NETWORKS } from "@/constants/tokens";
 import { LoadingSkeleton } from "@coinbase/cdp-react/components/ui/LoadingSkeleton";
+import Image from "next/image";
 
 interface Props {
   network?: "base" | "base-sepolia";
@@ -48,13 +49,15 @@ export default function UserBalance(props: Props) {
               >
                 <div className="flex items-center gap-3">
                   {tokenBalance.token.logoUrl && (
-                    <img
+                    <Image
                       src={tokenBalance.token.logoUrl}
                       alt={tokenBalance.token.symbol}
-                      className="w-6 h-6 rounded-full"
+                      className="rounded-full"
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
                       }}
+                      width={24}
+                      height={24}
                     />
                   )}
                   <div>
@@ -68,8 +71,8 @@ export default function UserBalance(props: Props) {
                 </div>
 
                 <div className="text-right">
-                  <div className="text-sm font-medium text-gray-900">
-                    {tokenBalance.formattedBalance}
+                  <div className="text-sm font-normal text-gray-900">
+                    {tokenBalance.formattedBalance} {tokenBalance.token.symbol}
                   </div>
                 </div>
               </div>

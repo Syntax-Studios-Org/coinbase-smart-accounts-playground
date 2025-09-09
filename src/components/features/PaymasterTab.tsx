@@ -25,44 +25,44 @@ export default function PaymasterTab({
     {
       icon: Zap,
       title: "Gasless Transactions",
-      description: "Users don't need to hold ETH for gas fees, making onboarding seamless for new users."
+      description: "No gas fees for users"
     },
     {
       icon: Shield,
       title: "Better UX",
-      description: "Eliminates the complexity of managing gas fees and native tokens for end users."
+      description: "Improved onboarding experience"
     },
     {
       icon: Users,
-      title: "Mass Adoption", 
-      description: "Removes barriers to entry, enabling mainstream adoption of blockchain applications."
+      title: "Mass Adoption",
+      description: "Reduced transaction friction"
     },
     {
       icon: Coins,
       title: "Cost Predictability",
-      description: "Applications can sponsor transactions and provide predictable costs to users."
+      description: "Better conversion rates"
     }
   ];
 
   return (
     <div className="flex flex-col h-full">
-      <ScreenHeader 
-        icon={Fuel} 
-        title="Paymaster" 
+      <ScreenHeader
+        icon={Fuel}
+        title="Paymaster"
         description="Paymasters enable gasless transactions by sponsoring gas fees for users. This dramatically improves user experience by removing the need to hold native tokens for gas."
       />
-      
-      <div className="flex-1 mx-[20%] px-6 pb-6">
-      
+
+      <div className="flex-1 mx-[15%] px-6 pb-6">
+
       <div className="mb-6">
         <h4 className="text-sm font-medium text-gray-500 mb-3">Benefits</h4>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {benefits.map((benefit) => {
             const IconComponent = benefit.icon;
             return (
-              <div key={benefit.title} className="bg-[#FAFAFA] rounded-md p-4">
-                <IconComponent className="w-5 h-5 text-gray-600 mb-3" />
-                <p className="text-gray-600 text-[13px] leading-relaxed">
+              <div key={benefit.title} className="bg-[#FAFAFA] rounded-md p-3">
+                <IconComponent className="w-5 h-5 text-[#171717] mb-2" />
+                <p className="text-[#171717] text-[13px] tracking-tight">
                   {benefit.description}
                 </p>
               </div>
@@ -104,7 +104,7 @@ export default function PaymasterTab({
               </p>
             </div>
           )}
-          
+
           <div className="bg-orange-50 rounded-lg p-4 mt-4">
             <div className="flex items-center justify-between">
               <span className="text-orange-700 text-sm">
