@@ -4,6 +4,7 @@ import { useCurrentUser, useIsSignedIn, useSignOut } from "@coinbase/cdp-hooks";
 import { useState } from "react";
 import { ChevronDown, Copy, LogOut } from "lucide-react";
 import Image from "next/image";
+import { copyToClipboard } from "@/utils/clipboard";
 
 interface AddressDropdownProps {
   selectedNetwork: "base" | "base-sepolia";
@@ -20,14 +21,6 @@ export default function AddressDropdown({ selectedNetwork }: AddressDropdownProp
   const [isOpen, setIsOpen] = useState(false);
 
   const networkLabel = selectedNetwork === "base-sepolia" ? "TESTNET" : "MAINNET";
-
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
 
   if (!isSignedIn || !smartAccount) {
     return null;

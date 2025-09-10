@@ -1,6 +1,7 @@
 "use client";
 import ClientApp from "@/components/layout/ClientApp";
 import Providers from "@/components/Providers";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 /**
  * Home page for the Next.js app
@@ -9,8 +10,10 @@ import Providers from "@/components/Providers";
  */
 export default function Home() {
   return (
-    <Providers>
-      <ClientApp />
-    </Providers>
+    <ErrorBoundary>
+      <Providers>
+        <ClientApp />
+      </Providers>
+    </ErrorBoundary>
   );
 }

@@ -60,11 +60,15 @@ src/
 │   │   └── PaymasterTab.tsx           # Paymaster configuration
 │   │
 │   ├── ui/                      # Reusable UI components
-│   │   ├── NetworkSelector.tsx  # Network switching
-│   │   ├── PaymasterSettings.tsx # Paymaster toggle
+│   │   ├── AddressDropdown.tsx  # Address display and actions
+│   │   ├── CustomDropdown.tsx   # Generic dropdown component
+│   │   ├── ScreenHeader.tsx     # Common screen header
+│   │   ├── TransactionCompletionModal.tsx # Transaction success modal
 │   │   ├── Loading.tsx          # Loading states
 │   │   └── Icons.tsx            # Icon components
 │   │
+│   ├── Providers.tsx            # CDP React provider setup
+│   ├── theme.ts                 # CDP theme configuration
 │   └── index.ts                 # Clean component exports
 │
 ├── constants/                   # Application constants
@@ -79,7 +83,8 @@ src/
 │   └── validation.ts           # Input validation
 │
 ├── utils/                      # Helper functions
-│   └── format.ts               # Formatting utilities
+│   ├── format.ts               # Formatting utilities
+│   └── clipboard.ts            # Clipboard utilities and hooks
 │
 └── types/                      # TypeScript definitions
     └── swap.ts                 # Token & balance types

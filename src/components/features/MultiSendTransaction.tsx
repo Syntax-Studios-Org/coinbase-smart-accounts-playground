@@ -9,7 +9,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useCurrentUser, useSendUserOperation } from "@coinbase/cdp-hooks";
-import { parseUnits, isAddress, formatUnits, encodeFunctionData } from "viem";
+import { parseUnits, isAddress, encodeFunctionData } from "viem";
 import { SUPPORTED_NETWORKS } from "@/constants/tokens";
 import { useTokenBalances } from "@/hooks/useTokenBalances";
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -37,7 +37,7 @@ export default function MultiSendTransaction({
   paymasterUrl,
 }: MultiSendTransactionProps) {
   const { currentUser } = useCurrentUser();
-  const { sendUserOperation, data, error, status } = useSendUserOperation();
+  const { sendUserOperation, data, status } = useSendUserOperation();
 
   const [recipients, setRecipients] = useState<MultiSendRecipient[]>([
     { address: "", amount: "", token: "ETH" },
@@ -49,14 +49,12 @@ export default function MultiSendTransaction({
   const [addressErrors, setAddressErrors] = useState<Record<number, string>>(
     {},
   );
-  const [showSuccess, setShowSuccess] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isLocalLoading, setIsLocalLoading] = useState(false);
 
   const smartAccount = currentUser?.evmSmartAccounts?.[0];
   const tokens = SUPPORTED_NETWORKS[network];
   const isLoading = status === "pending" || isLocalLoading;
-  const isSuccess = status === "success" && data && showSuccess;
 
   // Get token balances for max button functionality
   const { data: tokenBalances } = useTokenBalances(
@@ -191,17 +189,6 @@ export default function MultiSendTransaction({
       setIsLocalLoading(false);
     }
   };
-
-  const handleReset = () => {
-    setRecipients([{ address: "", amount: "", token: "ETH" }]);
-    setCollapsedRecipients([false]);
-    setErrorMessage("");
-    setAddressErrors({});
-    setShowSuccess(false);
-    setShowModal(false);
-    setIsLocalLoading(false);
-  };
-
 
   // Calculate total amount for modal
   const totalAmount = recipients.reduce((sum, recipient) => {

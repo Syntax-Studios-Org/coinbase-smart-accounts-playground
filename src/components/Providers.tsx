@@ -16,7 +16,7 @@ const CDP_CONFIG: Config = {
 
 const APP_CONFIG: AppConfig = {
   name: "CDP Next.js StarterKit",
-  logoUrl: "http://localhost:3000/logo.svg",
+  logoUrl: "/logo.svg",
   authMethods: ["email", "sms"],
 };
 

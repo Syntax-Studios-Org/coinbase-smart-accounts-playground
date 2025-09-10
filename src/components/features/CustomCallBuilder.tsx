@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import {
-  Settings,
   Code,
   Coins,
   Zap,
@@ -56,7 +55,6 @@ export default function CustomCallBuilder({
   ]);
   const [collapsedCalls, setCollapsedCalls] = useState<boolean[]>([false]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [storageValue, setStorageValue] = useState<string | null>(null);
   const [loadingStorage, setLoadingStorage] = useState(false);
@@ -66,7 +64,6 @@ export default function CustomCallBuilder({
 
   const smartAccount = currentUser?.evmSmartAccounts?.[0];
   const isLoading = status === "pending" || isLocalLoading;
-  const isSuccess = status === "success" && data && showSuccess;
 
   // Read storage value from contract
   const readStorageValue = async () => {
@@ -260,18 +257,6 @@ export default function CustomCallBuilder({
     }
   };
 
-  const handleReset = () => {
-    setCalls([{ to: "", value: "0", data: "0x" }]);
-    setCollapsedCalls([false]);
-    setErrorMessage("");
-    setShowSuccess(false);
-    setShowModal(false);
-    setShowStorageContract(false);
-    setStorageValue(null);
-    setIsLocalLoading(false);
-  };
-
-
   return (
     <>
       <TransactionCompletionModal
@@ -282,7 +267,7 @@ export default function CustomCallBuilder({
         network={network}
         transactionHash={data?.transactionHash}
       />
-      
+
       <div className="flex flex-col h-full">
         <ScreenHeader
           icon={FileCode2}
