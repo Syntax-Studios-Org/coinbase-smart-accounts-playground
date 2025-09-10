@@ -26,6 +26,7 @@ import {
   SIMPLE_STORAGE_ABI,
 } from "@/constants/contracts";
 import ScreenHeader from "@/components/ui/ScreenHeader";
+import TransactionCompletionModal from "@/components/ui/TransactionCompletionModal";
 
 interface CustomCall {
   to: string;
@@ -56,6 +57,7 @@ export default function CustomCallBuilder({
   const [collapsedCalls, setCollapsedCalls] = useState<boolean[]>([false]);
   const [errorMessage, setErrorMessage] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [storageValue, setStorageValue] = useState<string | null>(null);
   const [loadingStorage, setLoadingStorage] = useState(false);
   const [showStorageContract, setShowStorageContract] = useState(false);
@@ -248,7 +250,7 @@ export default function CustomCallBuilder({
         ...paymasterConfig,
       });
 
-      setShowSuccess(true);
+      setShowModal(true);
     } catch (err) {
       setErrorMessage(
         err instanceof Error ? err.message : "Transaction failed",
@@ -263,48 +265,30 @@ export default function CustomCallBuilder({
     setCollapsedCalls([false]);
     setErrorMessage("");
     setShowSuccess(false);
+    setShowModal(false);
     setShowStorageContract(false);
     setStorageValue(null);
     setIsLocalLoading(false);
   };
 
-  // Success state
-  if (isSuccess) {
-    return (
-      <div className="text-center py-8">
-        <div className="text-6xl mb-4">🎉</div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Custom Calls Executed!
-        </h3>
-        <p className="text-gray-600 mb-4">
-          Successfully executed {calls.length} call(s) in a single transaction
-        </p>
-        <p className="text-gray-600 mb-4">
-          Transaction:{" "}
-          <a
-            href={`https://${network === "base-sepolia" ? "sepolia." : ""}basescan.org/tx/${data.transactionHash}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary-600 hover:text-primary-500 font-mono"
-          >
-            {data.transactionHash?.slice(0, 6)}...
-            {data.transactionHash?.slice(-4)}
-          </a>
-        </p>
-        <button onClick={handleReset} className="btn-secondary">
-          Send Another Custom Call
-        </button>
-      </div>
-    );
-  }
 
   return (
-    <div className="flex flex-col h-full">
-      <ScreenHeader
-        icon={FileCode2}
-        title="Custom Calls"
-        description="Build and execute custom smart contract calls. Batch multiple operations into a single transaction for maximum efficiency."
+    <>
+      <TransactionCompletionModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        type="customcall"
+        contractCount={calls.length}
+        network={network}
+        transactionHash={data?.transactionHash}
       />
+      
+      <div className="flex flex-col h-full">
+        <ScreenHeader
+          icon={FileCode2}
+          title="Custom Calls"
+          description="Build and execute custom smart contract calls. Batch multiple operations into a single transaction for maximum efficiency."
+        />
 
       <div className="flex-1 mx-[15%] px-6 pb-6">
         {errorMessage && (
@@ -567,5 +551,6 @@ export default function CustomCallBuilder({
         </button>
       </div>
     </div>
+    </>
   );
 }

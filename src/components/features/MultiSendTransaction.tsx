@@ -13,6 +13,8 @@ import { parseUnits, isAddress, formatUnits, encodeFunctionData } from "viem";
 import { SUPPORTED_NETWORKS } from "@/constants/tokens";
 import { useTokenBalances } from "@/hooks/useTokenBalances";
 import ScreenHeader from "@/components/ui/ScreenHeader";
+import TransactionCompletionModal from "@/components/ui/TransactionCompletionModal";
+import CustomDropdown from "@/components/ui/CustomDropdown";
 
 interface MultiSendRecipient {
   address: string;
@@ -48,6 +50,7 @@ export default function MultiSendTransaction({
     {},
   );
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [isLocalLoading, setIsLocalLoading] = useState(false);
 
   const smartAccount = currentUser?.evmSmartAccounts?.[0];
@@ -178,8 +181,8 @@ export default function MultiSendTransaction({
         ...paymasterConfig,
       });
 
-      // Show success state only after successful transaction
-      setShowSuccess(true);
+      // Show modal only after successful transaction
+      setShowModal(true);
     } catch (err) {
       setErrorMessage(
         err instanceof Error ? err.message : "Transaction failed",
@@ -195,43 +198,36 @@ export default function MultiSendTransaction({
     setErrorMessage("");
     setAddressErrors({});
     setShowSuccess(false);
+    setShowModal(false);
     setIsLocalLoading(false);
   };
 
-  // Success state
-  if (isSuccess) {
-    return (
-      <div className="text-center py-8">
-        <div className="text-6xl mb-4">🎉</div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Multi-Send Successful!
-        </h3>
-        <p className="text-gray-600 mb-4">
-          Transaction:{" "}
-          <a
-            href={`https://${network === "base-sepolia" ? "sepolia." : ""}basescan.org/tx/${data.transactionHash}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary-600 hover:text-primary-500 font-mono"
-          >
-            {data.transactionHash?.slice(0, 6)}...
-            {data.transactionHash?.slice(-4)}
-          </a>
-        </p>
-        <button onClick={handleReset} className="btn-secondary">
-          Send Another Multi-Send
-        </button>
-      </div>
-    );
-  }
+
+  // Calculate total amount for modal
+  const totalAmount = recipients.reduce((sum, recipient) => {
+    const amount = parseFloat(recipient.amount) || 0;
+    return sum + amount;
+  }, 0);
 
   return (
-    <div className="flex flex-col h-full">
-      <ScreenHeader
-        icon={ChevronsRight}
-        title="MultiSend"
-        description="Send tokens to multiple recipients in a single transaction. Save on gas and improve efficiency with batch operations."
+    <>
+      <TransactionCompletionModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        type="multisend"
+        recipientCount={recipients.length}
+        amount={totalAmount.toString()}
+        token={recipients[0]?.token || "ETH"}
+        network={network}
+        transactionHash={data?.transactionHash}
       />
+
+      <div className="flex flex-col h-full">
+        <ScreenHeader
+          icon={ChevronsRight}
+          title="MultiSend"
+          description="Send tokens to multiple recipients in a single transaction. Save on gas and improve efficiency with batch operations."
+        />
 
       <div className="flex-1 mx-[15%] px-6 pb-6">
         {errorMessage && (
@@ -322,33 +318,16 @@ export default function MultiSendTransaction({
                           <p className="text-xs text-[#737373] tracking-tight mb-1">
                             Make sure you select the correct token
                           </p>
-                          <div className="relative">
-                            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center pointer-events-none">
-                              {tokens[recipient.token].logoUrl && (
-                                <img
-                                  src={tokens[recipient.token].logoUrl}
-                                  alt={recipient.token}
-                                  className="w-4 h-4 rounded-full"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = "none";
-                                  }}
-                                />
-                              )}
-                            </div>
-                            <select
-                              value={recipient.token}
-                              onChange={(e) =>
-                                updateRecipient(index, "token", e.target.value)
-                              }
-                              className="w-full pl-10 pr-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
-                            >
-                              {Object.entries(tokens).map(([symbol, token]) => (
-                                <option key={symbol} value={symbol}>
-                                  {token.name} | ${symbol}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
+                          <CustomDropdown
+                            options={Object.entries(tokens).map(([symbol, token]) => ({
+                              value: symbol,
+                              label: `${token.name} | $${symbol}`,
+                              icon: token.logoUrl,
+                            }))}
+                            value={recipient.token}
+                            onChange={(value) => updateRecipient(index, "token", value)}
+                            placeholder="Select a token"
+                          />
                         </div>
                       </div>
 
@@ -390,6 +369,7 @@ export default function MultiSendTransaction({
                           }
                           placeholder="0.0"
                           step="any"
+                          min="0"
                           className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
@@ -451,5 +431,6 @@ export default function MultiSendTransaction({
         </button>
       </div>
     </div>
+    </>
   );
 }

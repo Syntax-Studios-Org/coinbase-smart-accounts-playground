@@ -1,9 +1,8 @@
 "use client";
 
-import { useCurrentUser, useIsSignedIn } from "@coinbase/cdp-hooks";
-import { AuthButton } from "@coinbase/cdp-react/components/AuthButton";
+import { useCurrentUser, useIsSignedIn, useSignOut } from "@coinbase/cdp-hooks";
 import { useState } from "react";
-import { ChevronDown, Copy } from "lucide-react";
+import { ChevronDown, Copy, LogOut } from "lucide-react";
 import Image from "next/image";
 
 interface AddressDropdownProps {
@@ -15,6 +14,7 @@ interface AddressDropdownProps {
  */
 export default function AddressDropdown({ selectedNetwork }: AddressDropdownProps) {
   const { isSignedIn } = useIsSignedIn();
+  const { signOut } = useSignOut();
   const { currentUser } = useCurrentUser();
   const smartAccount = currentUser?.evmSmartAccounts?.[0];
   const [isOpen, setIsOpen] = useState(false);
@@ -66,8 +66,8 @@ export default function AddressDropdown({ selectedNetwork }: AddressDropdownProp
           <div className="absolute top-full left-0 mt-1 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
             <div className="p-3 border-b border-gray-100">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-xs text-gray-900 break-all">
-                  {smartAccount}
+                <span className="text-sm text-gray-900 break-all tracking-tight">
+                  {`${smartAccount.slice(0, 8)}...${smartAccount.slice(-6)}`}
                 </span>
                 <button
                   onClick={() => copyToClipboard(smartAccount)}
@@ -79,7 +79,16 @@ export default function AddressDropdown({ selectedNetwork }: AddressDropdownProp
               </div>
             </div>
             <div className="p-2">
-              <AuthButton />
+              <button
+                onClick={() => {
+                  signOut();
+                  setIsOpen(false);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </button>
             </div>
           </div>
         </>
