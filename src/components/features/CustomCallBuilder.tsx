@@ -297,7 +297,7 @@ export default function CustomCallBuilder({
                 <button
                   key={preset.name}
                   onClick={preset.action}
-                  className="bg-[#FAFAFA] rounded-lg p-3 text-center hover:bg-gray-100 transition-colors"
+                  className="bg-[#FAFAFA] rounded-lg p-3 text-center hover:bg-gray-100 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-1 justify-center">
                     <IconComponent className="w-4 h-4 text-[#737373]" />
@@ -368,7 +368,7 @@ export default function CustomCallBuilder({
                 <button
                   onClick={readStorageValue}
                   disabled={loadingStorage}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors text-sm disabled:opacity-50 whitespace-nowrap"
+                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors text-sm disabled:opacity-50 whitespace-nowrap cursor-pointer"
                 >
                   Refresh
                 </button>
@@ -400,7 +400,7 @@ export default function CustomCallBuilder({
                       <>
                         <button
                           onClick={() => removeCall(index)}
-                          className="text-red-500 hover:text-red-700 p-2 transition-colors"
+                          className="text-red-500 hover:text-red-700 p-2 transition-colors cursor-pointer"
                           type="button"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -410,7 +410,7 @@ export default function CustomCallBuilder({
                     )}
                     <button
                       onClick={() => toggleCallCollapse(index)}
-                      className="text-gray-500 hover:text-gray-700 p-2 transition-colors"
+                      className="text-gray-500 hover:text-gray-700 p-2 transition-colors cursor-pointer"
                       type="button"
                     >
                       {isCollapsed ? (
@@ -494,7 +494,7 @@ export default function CustomCallBuilder({
           <button
             onClick={addCall}
             disabled={isLoading}
-            className="w-full text-center text-gray-700 hover:text-gray-900 transition-colors flex items-center justify-center space-x-4"
+            className="w-full text-center text-gray-700 hover:text-gray-900 transition-colors flex items-center justify-center space-x-4 cursor-pointer"
           >
             Add a new call <span><Plus size={16} /></span>
           </button>
@@ -523,7 +523,7 @@ export default function CustomCallBuilder({
         <button
           onClick={handleExecute}
           disabled={isLoading || !smartAccount}
-          className="bg-[#0075FF] text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-[#0075FF] text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {isLoading ? (
             <div className="flex items-center gap-2">

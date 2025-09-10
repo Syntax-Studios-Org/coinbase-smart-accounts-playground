@@ -19,7 +19,7 @@ export default function UserBalance(props: Props) {
     () => Object.values(SUPPORTED_NETWORKS[network]),
     [network],
   );
-  const { data: tokenBalances, isLoading } = useTokenBalances(network, tokens);
+  const { data: tokenBalances, isLoading, isRefetching } = useTokenBalances(network, tokens);
 
   return (
     <div>
@@ -30,7 +30,7 @@ export default function UserBalance(props: Props) {
           <LoadingSkeleton className="h-16 w-full rounded-lg" />
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className={`space-y-3 ${isRefetching ? 'opacity-75 transition-opacity' : ''}`}>
           {tokenBalances
             .sort((a, b) => {
               // Sort by balance: non-zero balances first, then zero balances

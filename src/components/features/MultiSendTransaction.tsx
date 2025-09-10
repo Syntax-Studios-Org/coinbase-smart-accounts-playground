@@ -245,7 +245,7 @@ export default function MultiSendTransaction({
                       <>
                         <button
                           onClick={() => removeRecipient(index)}
-                          className="text-red-500 hover:text-red-700 p-2 transition-colors"
+                          className="text-red-500 hover:text-red-700 p-2 transition-colors cursor-pointer"
                           type="button"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -255,7 +255,7 @@ export default function MultiSendTransaction({
                     )}
                     <button
                       onClick={() => toggleRecipientCollapse(index)}
-                      className="text-gray-500 hover:text-gray-700 p-2 transition-colors"
+                      className="text-gray-500 hover:text-gray-700 p-2 transition-colors cursor-pointer"
                       type="button"
                     >
                       {isCollapsed ? (
@@ -306,11 +306,20 @@ export default function MultiSendTransaction({
                             Make sure you select the correct token
                           </p>
                           <CustomDropdown
-                            options={Object.entries(tokens).map(([symbol, token]) => ({
-                              value: symbol,
-                              label: `${token.name} | $${symbol}`,
-                              icon: token.logoUrl,
-                            }))}
+                            options={Object.entries(tokens).map(([symbol, token]) => {
+                              const tokenBalance = tokenBalances?.find(
+                                (balance) => balance.token.symbol === symbol
+                              );
+                              const balanceText = tokenBalance 
+                                ? ` (${tokenBalance.formattedBalance})`
+                                : ' (0.000000)';
+                              
+                              return {
+                                value: symbol,
+                                label: `${token.name} | $${symbol}${balanceText}`,
+                                icon: token.logoUrl,
+                              };
+                            })}
                             value={recipient.token}
                             onChange={(value) => updateRecipient(index, "token", value)}
                             placeholder="Select a token"
@@ -338,7 +347,7 @@ export default function MultiSendTransaction({
                                   );
                                 }
                               }}
-                              className="text-blue-600 hover:text-blue-800 font-medium"
+                              className="text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
                               type="button"
                             >
                               MAX
@@ -373,7 +382,7 @@ export default function MultiSendTransaction({
           <button
             onClick={addRecipient}
             disabled={isLoading}
-            className="w-full text-center text-gray-700 hover:text-gray-900 transition-colors flex items-center justify-center space-x-4"
+            className="w-full text-center text-gray-700 hover:text-gray-900 transition-colors flex items-center justify-center space-x-4 cursor-pointer"
           >
             Add a new recipient{" "}
             <span>
@@ -405,7 +414,7 @@ export default function MultiSendTransaction({
         <button
           onClick={handleMultiSend}
           disabled={isLoading || !smartAccount}
-          className="bg-[#0075FF] text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-[#0075FF] text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {isLoading ? (
             <div className="flex items-center gap-2">

@@ -190,10 +190,10 @@ export default function TransactionCompletionModal({
         {/* Separator */}
         <div className="relative my-6 -mx-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-400/20 z-50" />
+            <div className="w-full border-t border-gray-400/20" />
           </div>
-          <div className="relative flex justify-center z-100">
-            <span className="bg-[#0000000A] px-3 py-1 text-xs text-[#A7A7A7] border border-white/10 rounded-full flex items-center">
+          <div className="relative flex justify-center">
+            <span className="bg-gray-100 px-3 py-1 text-xs text-[#A7A7A7] border border-white/10 rounded-full flex items-center">
               <span>
                 <Image src="/lock.svg" width={16} height={16} alt="lock" />
               </span>
@@ -212,7 +212,7 @@ export default function TransactionCompletionModal({
           disabled={!isExplorerEnabled || !transactionHash}
           className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${
             isExplorerEnabled && transactionHash
-              ? "bg-[#0075FF] text-white hover:bg-blue-600"
+              ? "bg-[#0075FF] text-white hover:bg-blue-600 cursor-pointer"
               : "bg-gray-200 text-gray-400 cursor-not-allowed"
           }`}
         >

@@ -53,7 +53,7 @@ export default function CustomDropdown({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white flex items-center justify-between"
+        className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white flex items-center justify-between cursor-pointer"
       >
         <div className="flex items-center gap-2">
           {selectedOption?.icon && (
@@ -85,7 +85,7 @@ export default function CustomDropdown({
               key={option.value}
               type="button"
               onClick={() => handleSelect(option.value)}
-              className="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-2 transition-colors"
+              className="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-2 transition-colors cursor-pointer"
             >
               {option.icon && (
                 <img

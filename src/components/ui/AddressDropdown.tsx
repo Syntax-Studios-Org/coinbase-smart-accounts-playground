@@ -30,7 +30,7 @@ export default function AddressDropdown({ selectedNetwork }: AddressDropdownProp
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
+        className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
       >
         <Image
           src="/address-image.png"
@@ -64,7 +64,7 @@ export default function AddressDropdown({ selectedNetwork }: AddressDropdownProp
                 </span>
                 <button
                   onClick={() => copyToClipboard(smartAccount)}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors ml-2 flex-shrink-0"
+                  className="p-1 hover:bg-gray-100 rounded transition-colors ml-2 flex-shrink-0 cursor-pointer"
                   title="Copy address"
                 >
                   <Copy className="w-4 h-4 text-gray-500" />
@@ -77,7 +77,7 @@ export default function AddressDropdown({ selectedNetwork }: AddressDropdownProp
                   signOut();
                   setIsOpen(false);
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
                 Sign Out

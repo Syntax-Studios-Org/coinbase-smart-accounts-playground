@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FileCode2,
   Hammer,
@@ -28,6 +28,45 @@ export default function SmartAccountPlayground() {
   >("base-sepolia");
   const [usePaymaster, setUsePaymaster] = useState(true);
   const [paymasterUrl, setPaymasterUrl] = useState("");
+
+  // Load saved preferences from localStorage on component mount
+  useEffect(() => {
+    const savedPaymasterUrl = localStorage.getItem("cdp-paymaster-url");
+    const savedNetwork = localStorage.getItem("cdp-selected-network") as "base" | "base-sepolia";
+    const savedUsePaymaster = localStorage.getItem("cdp-use-paymaster");
+
+    if (savedPaymasterUrl) {
+      setPaymasterUrl(savedPaymasterUrl);
+    }
+    if (savedNetwork && (savedNetwork === "base" || savedNetwork === "base-sepolia")) {
+      setSelectedNetwork(savedNetwork);
+    }
+    if (savedUsePaymaster !== null) {
+      setUsePaymaster(savedUsePaymaster === "true");
+    }
+  }, []);
+
+  // Save paymaster URL to localStorage whenever it changes
+  const handlePaymasterUrlChange = (url: string) => {
+    setPaymasterUrl(url);
+    if (url.trim()) {
+      localStorage.setItem("cdp-paymaster-url", url);
+    } else {
+      localStorage.removeItem("cdp-paymaster-url");
+    }
+  };
+
+  // Save network selection to localStorage
+  const handleNetworkChange = (network: "base" | "base-sepolia") => {
+    setSelectedNetwork(network);
+    localStorage.setItem("cdp-selected-network", network);
+  };
+
+  // Save paymaster toggle state to localStorage
+  const handlePaymasterToggle = (enabled: boolean) => {
+    setUsePaymaster(enabled);
+    localStorage.setItem("cdp-use-paymaster", enabled.toString());
+  };
 
   const tabs = [
     { id: "multi-send" as const, label: "MultiSend", icon: ChevronsRight },
@@ -65,7 +104,7 @@ export default function SmartAccountPlayground() {
               return (
                 <button
                   key={tab.id}
-                  className={`w-full flex items-center gap-3 px-0 py-3 text-left transition-colors ${
+                  className={`w-full flex items-center gap-3 px-0 py-3 text-left transition-colors cursor-pointer ${
                     activeTab === tab.id
                       ? "text-[#0075FF]"
                       : "text-[#404040] hover:text-[#0075FF]"
@@ -99,8 +138,8 @@ export default function SmartAccountPlayground() {
                     </span>
                   </div>
                   <button
-                    onClick={() => setSelectedNetwork(network.id)}
-                    className={`p-1 py-0.5 rounded-sm text-[11px] font-medium ${
+                    onClick={() => handleNetworkChange(network.id)}
+                    className={`p-1 py-0.5 rounded-sm text-[11px] font-medium cursor-pointer ${
                       isActive
                         ? "bg-[#0075FF] text-white"
                         : "bg-[#E5E5E5] text-[#737373] hover:bg-gray-300"
@@ -140,7 +179,7 @@ export default function SmartAccountPlayground() {
               <input
                 type="checkbox"
                 checked={usePaymaster}
-                onChange={(e) => setUsePaymaster(e.target.checked)}
+                onChange={(e) => handlePaymasterToggle(e.target.checked)}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0075FF]"></div>
@@ -178,7 +217,7 @@ export default function SmartAccountPlayground() {
             selectedNetwork={selectedNetwork}
             usePaymaster={usePaymaster}
             paymasterUrl={paymasterUrl}
-            onPaymasterUrlChange={setPaymasterUrl}
+            onPaymasterUrlChange={handlePaymasterUrlChange}
           />
         )}
       </div>

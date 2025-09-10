@@ -28,7 +28,7 @@ export default function Header() {
           {isSignedIn && smartAccount && (
             <button
               onClick={() => copy(smartAccount)}
-              className="flex items-center gap-2 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors group"
+              className="flex items-center gap-2 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors group cursor-pointer"
               title="Click to copy Smart Account address"
             >
               <span className="font-mono">

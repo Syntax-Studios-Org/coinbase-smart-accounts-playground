@@ -16,17 +16,22 @@ export const useTokenBalances = (
   const { evmAddress } = useEvmAddress();
   const [data, setData] = useState<TokenBalance[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefetching, setIsRefetching] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [totalUsdBalance, setTotalUsdBalance] = useState<number>(0);
 
-  const fetchBalances = useCallback(async (): Promise<void> => {
+  const fetchBalances = useCallback(async (isRefetch = false): Promise<void> => {
     if (!evmAddress) {
       setData([]);
       setTotalUsdBalance(0);
       return;
     }
 
-    setIsLoading(true);
+    if (isRefetch) {
+      setIsRefetching(true);
+    } else {
+      setIsLoading(true);
+    }
     setError(null);
 
     try {
@@ -92,6 +97,7 @@ export const useTokenBalances = (
       setData(fallbackBalances);
     } finally {
       setIsLoading(false);
+      setIsRefetching(false);
     }
   }, [evmAddress, network]); // Removed 'tokens' from dependencies
 
@@ -100,10 +106,10 @@ export const useTokenBalances = (
   }, [evmAddress, network]); // Only re-fetch when address or network changes
 
   useEffect(() => {
-    // Auto-refresh token balances every 30 seconds
-    const interval = setInterval(fetchBalances, 30000);
+    // Auto-refresh token balances every 30 seconds (as refetch)
+    const interval = setInterval(() => fetchBalances(true), 30000);
     return () => clearInterval(interval);
   }, [fetchBalances]);
 
-  return { data, isLoading, error, refetch: fetchBalances, totalUsdBalance };
+  return { data, isLoading, isRefetching, error, refetch: fetchBalances, totalUsdBalance };
 };
