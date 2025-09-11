@@ -164,7 +164,7 @@ export default function CustomCallBuilder({
           functionName: "transfer",
           args: [
             "0xf12c5C3bcf3C798FB82394a09F9B4EAcd9C53597" as `0x${string}`,
-            BigInt("100000000"),
+            BigInt("10000"),
           ],
         });
         setCalls([
@@ -199,7 +199,7 @@ export default function CustomCallBuilder({
           functionName: "transfer",
           args: [
             "0xf12c5C3bcf3C798FB82394a09F9B4EAcd9C53597" as `0x${string}`,
-            BigInt("100000000"),
+            BigInt("10000"),
           ],
         });
         const setValue456 = encodeFunctionData({
