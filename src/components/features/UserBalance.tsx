@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 interface Props {
-  network?: "base" | "base-sepolia";
+  network?: "base-sepolia";
 }
 
 /**

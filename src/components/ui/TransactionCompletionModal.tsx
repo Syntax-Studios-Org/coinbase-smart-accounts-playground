@@ -12,7 +12,7 @@ interface TransactionCompletionModalProps {
   contractCount?: number;
   amount?: string;
   token?: string;
-  network: "base" | "base-sepolia";
+  network: "base-sepolia";
   transactionHash?: string;
 }
 
@@ -68,7 +68,10 @@ export default function TransactionCompletionModal({
 
       // Chevron right icon
       images.push(
-        <ChevronsRight key="chevron" className="w-6 h-6 text-gray-400 mx-2 mr-4" />,
+        <ChevronsRight
+          key="chevron"
+          className="w-6 h-6 text-gray-400 mx-2 mr-4"
+        />,
       );
 
       // For 1 recipient: show address_2.png
@@ -197,7 +200,9 @@ export default function TransactionCompletionModal({
               <span>
                 <Image src="/lock.svg" width={16} height={16} alt="lock" />
               </span>
-              <span className="ml-1">secured by <strong className="text-black/50">coinbase</strong></span>
+              <span className="ml-1">
+                secured by <strong className="text-black/50">coinbase</strong>
+              </span>
             </span>
           </div>
         </div>

@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  FileCode2,
-  Hammer,
-  Fuel,
-  Globe,
-  Zap,
-  ChevronsRight,
-} from "lucide-react";
+import { FileCode2, Hammer, Fuel, Zap, ChevronsRight } from "lucide-react";
 import MultiSendTransaction from "@/components/features/MultiSendTransaction";
 import CustomCallBuilder from "@/components/features/CustomCallBuilder";
 import PaymasterTab from "@/components/features/PaymasterTab";
@@ -23,22 +16,23 @@ type PlaygroundTab = "multi-send" | "custom-calls" | "paymaster";
  */
 export default function SmartAccountPlayground() {
   const [activeTab, setActiveTab] = useState<PlaygroundTab>("multi-send");
-  const [selectedNetwork, setSelectedNetwork] = useState<
-    "base" | "base-sepolia"
-  >("base-sepolia");
+  const [selectedNetwork, setSelectedNetwork] =
+    useState<"base-sepolia">("base-sepolia");
   const [usePaymaster, setUsePaymaster] = useState(true);
   const [paymasterUrl, setPaymasterUrl] = useState("");
 
   // Load saved preferences from localStorage on component mount
   useEffect(() => {
     const savedPaymasterUrl = localStorage.getItem("cdp-paymaster-url");
-    const savedNetwork = localStorage.getItem("cdp-selected-network") as "base" | "base-sepolia";
+    const savedNetwork = localStorage.getItem(
+      "cdp-selected-network",
+    ) as "base-sepolia";
     const savedUsePaymaster = localStorage.getItem("cdp-use-paymaster");
 
     if (savedPaymasterUrl) {
       setPaymasterUrl(savedPaymasterUrl);
     }
-    if (savedNetwork && (savedNetwork === "base" || savedNetwork === "base-sepolia")) {
+    if (savedNetwork && savedNetwork === "base-sepolia") {
       setSelectedNetwork(savedNetwork);
     }
     if (savedUsePaymaster !== null) {
@@ -57,7 +51,7 @@ export default function SmartAccountPlayground() {
   };
 
   // Save network selection to localStorage
-  const handleNetworkChange = (network: "base" | "base-sepolia") => {
+  const handleNetworkChange = (network: "base-sepolia") => {
     setSelectedNetwork(network);
     localStorage.setItem("cdp-selected-network", network);
   };
@@ -75,11 +69,6 @@ export default function SmartAccountPlayground() {
   ];
 
   const networks = [
-    {
-      id: "base" as const,
-      name: "Base Mainnet",
-      icon: Globe,
-    },
     {
       id: "base-sepolia" as const,
       name: "Base Sepolia",
@@ -166,7 +155,9 @@ export default function SmartAccountPlayground() {
                 <div className="text-xs text-gray-500">
                   sponsored by{" "}
                   <Link
-                    href={"https://portal.cdp.coinbase.com/products/paymaster/configuration"}
+                    href={
+                      "https://portal.cdp.coinbase.com/products/paymaster/configuration"
+                    }
                     target="_blank"
                     className="text-blue-600 font-medium"
                   >

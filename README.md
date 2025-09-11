@@ -8,7 +8,7 @@ A comprehensive demo showcasing the power of Coinbase Developer Platform (CDP) S
 - **One-click sign-in** with CDP Wallet (email/SMS)
 - **Automatic Smart Account provisioning** upon login
 - **Clean account display** with connected email and Smart Account address
-- **Multi-network support** - Base Mainnet and Base Sepolia
+- **Multi-network support** - Base Sepolia testnet
 
 ### 📤 Multi-Send Transactions
 - **Batch token transfers** to multiple recipients in a single transaction
@@ -26,12 +26,10 @@ A comprehensive demo showcasing the power of Coinbase Developer Platform (CDP) S
 
 ### ⛽ Paymaster Integration
 - **Gasless transactions** on Base Sepolia (free CDP paymaster)
-- **Custom paymaster support** for Base Mainnet with URL configuration
 - **Toggle gasless mode** on/off in sidebar
-- **Dedicated paymaster tab** for mainnet configuration
 
 ### 💰 Enhanced Balance Display
-- **Multi-token balance tracking** for Base and Base Sepolia
+- **Multi-token balance tracking** for Base Sepolia
 - **Real-time balance updates** every 30 seconds
 - **Token icons and metadata** display
 - **Network-specific token lists**
@@ -143,7 +141,6 @@ Visit `http://localhost:3000` to access the playground.
 ### 4. Paymaster Configuration
 - Toggle gasless mode in the left sidebar
 - Base Sepolia: Automatic free sponsorship
-- Base Mainnet: Configure custom paymaster URL in the Paymaster tab
 
 ## 🌐 Supported Networks
 
@@ -151,10 +148,6 @@ Visit `http://localhost:3000` to access the playground.
 - **Chain ID**: 84532
 - **Paymaster**: Free CDP sponsorship
 - **Faucet**: [Base Sepolia Faucet](https://portal.cdp.coinbase.com/products/faucet)
-
-### Base Mainnet
-- **Chain ID**: 8453
-- **Paymaster**: Custom URL configuration required
 
 ## 🎯 Key Benefits
 
@@ -166,7 +159,7 @@ Visit `http://localhost:3000` to access the playground.
 
 ## 📚 Learn More
 
-- [CDP Documentation](https://docs.cloud.coinbase.com/cdp/docs)
-- [CDP React Documentation](https://docs.cloud.coinbase.com/cdp/docs/react-components)
-- [Smart Accounts Guide](https://docs.cloud.coinbase.com/cdp/docs/smart-accounts)
+- [CDP Documentation](https://docs.cdp.coinbase.com/)
+- [CDP React Hooks Documentation](https://docs.cdp.coinbase.com/embedded-wallets/react-hooks)
+- [Smart Accounts Guide](https://docs.cdp.coinbase.com/embedded-wallets/smart-accounts)
 - [CDP Portal](https://portal.cdp.coinbase.com)

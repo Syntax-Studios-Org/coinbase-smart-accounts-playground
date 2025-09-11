@@ -20,7 +20,7 @@ import Image from "next/image";
 import { copyToClipboard } from "@/utils/clipboard";
 
 interface AddressDropdownProps {
-  selectedNetwork: "base" | "base-sepolia";
+  selectedNetwork: "base-sepolia";
 }
 
 /**

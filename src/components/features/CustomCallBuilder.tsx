@@ -26,7 +26,7 @@ import {
 } from "@/constants/contracts";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import TransactionCompletionModal from "@/components/ui/TransactionCompletionModal";
-import { BASE_SEPOLIA_TOKENS, SUPPORTED_NETWORKS } from "@/constants/tokens";
+import { SUPPORTED_NETWORKS } from "@/constants/tokens";
 
 interface CustomCall {
   to: string;
@@ -35,7 +35,7 @@ interface CustomCall {
 }
 
 interface CustomCallBuilderProps {
-  network: "base" | "base-sepolia";
+  network: "base-sepolia";
   usePaymaster: boolean;
   paymasterUrl: string;
 }

@@ -31,12 +31,6 @@ export const formatUSD = (value: number): string => {
 /**
  * Get explorer URL for a transaction
  */
-export const getExplorerUrl = (
-  txHash: string,
-  network: "base" | "base-sepolia"
-): string => {
-  const baseUrl = network === "base-sepolia" 
-    ? "https://sepolia.basescan.org" 
-    : "https://basescan.org";
-  return `${baseUrl}/tx/${txHash}`;
+export const getExplorerUrl = (txHash: string): string => {
+  return `https://sepolia.basescan.org/tx/${txHash}`;
 };

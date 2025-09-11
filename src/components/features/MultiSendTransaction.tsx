@@ -23,7 +23,7 @@ interface MultiSendRecipient {
 }
 
 interface MultiSendTransactionProps {
-  network: "base" | "base-sepolia";
+  network: "base-sepolia";
   usePaymaster: boolean;
   paymasterUrl: string;
 }
@@ -216,217 +216,226 @@ export default function MultiSendTransaction({
           description="Send tokens to multiple recipients in a single transaction. Save on gas and improve efficiency with batch operations."
         />
 
-      <div className="flex-1 mx-[15%] px-6 pb-6">
-        {errorMessage && (
-          <div className="bg-red-50 border-none rounded-lg p-4 py-2 mb-6">
-            <div className="flex items-center gap-2">
-              <span className="text-red-500">❌</span>
-              <span className="text-red-800">{errorMessage}</span>
+        <div className="flex-1 mx-[15%] px-6 pb-6">
+          {errorMessage && (
+            <div className="bg-red-50 border-none rounded-lg p-4 py-2 mb-6">
+              <div className="flex items-center gap-2">
+                <span className="text-red-500">❌</span>
+                <span className="text-red-800">{errorMessage}</span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="space-y-4 mb-6">
-          {recipients.map((recipient, index) => {
-            const isCollapsed = collapsedRecipients[index];
-            const tokenBalance = tokenBalances?.find(
-              (tb) => tb.token.symbol === recipient.token,
-            );
+          <div className="space-y-4 mb-6">
+            {recipients.map((recipient, index) => {
+              const isCollapsed = collapsedRecipients[index];
+              const tokenBalance = tokenBalances?.find(
+                (tb) => tb.token.symbol === recipient.token,
+              );
 
-            return (
-              <div key={index} className="bg-[#FAFAFA] rounded-lg">
-                {/* Header */}
-                <div className="flex items-center justify-between p-4 py-2">
-                  <span className="font-normal text-[13px] text-[#737373] tracking-tight">
-                    Recipient {index + 1}
-                  </span>
-                  <div className="flex items-center">
-                    {recipients.length > 1 && (
-                      <>
-                        <button
-                          onClick={() => removeRecipient(index)}
-                          className="text-red-500 hover:text-red-700 p-2 transition-colors cursor-pointer"
-                          type="button"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                        <div className="w-px h-6 bg-gray-300 mx-2" />
-                      </>
-                    )}
-                    <button
-                      onClick={() => toggleRecipientCollapse(index)}
-                      className="text-gray-500 hover:text-gray-700 p-2 transition-colors cursor-pointer"
-                      type="button"
-                    >
-                      {isCollapsed ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronUp className="w-4 h-4" />
+              return (
+                <div key={index} className="bg-[#FAFAFA] rounded-lg">
+                  {/* Header */}
+                  <div className="flex items-center justify-between p-4 py-2">
+                    <span className="font-normal text-[13px] text-[#737373] tracking-tight">
+                      Recipient {index + 1}
+                    </span>
+                    <div className="flex items-center">
+                      {recipients.length > 1 && (
+                        <>
+                          <button
+                            onClick={() => removeRecipient(index)}
+                            className="text-red-500 hover:text-red-700 p-2 transition-colors cursor-pointer"
+                            type="button"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                          <div className="w-px h-6 bg-gray-300 mx-2" />
+                        </>
                       )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Content */}
-                {!isCollapsed && (
-                  <div className="px-4 pb-4">
-                    <div className="bg-white rounded-lg p-4">
-                      {/* Top Half */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        {/* Wallet Address */}
-                        <div>
-                          <label className="block text-sm text-[#171717] tracking-tight">
-                            Wallet Address
-                          </label>
-                          <p className="text-xs text-[#737373] tracking-tight mb-1">
-                            Enter the address
-                          </p>
-                          <input
-                            type="text"
-                            value={recipient.address}
-                            onChange={(e) =>
-                              updateRecipient(index, "address", e.target.value)
-                            }
-                            placeholder="0x..."
-                            className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          />
-                          {addressErrors[index] && (
-                            <p className="text-xs text-red-500 mt-1">
-                              {addressErrors[index]}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Token Selector */}
-                        <div>
-                          <label className="block text-sm text-[#171717] tracking-tight">
-                            Select a token
-                          </label>
-                          <p className="text-xs text-[#737373] tracking-tight mb-1">
-                            Make sure you select the correct token
-                          </p>
-                          <CustomDropdown
-                            options={Object.entries(tokens).map(([symbol, token]) => {
-                              const tokenBalance = tokenBalances?.find(
-                                (balance) => balance.token.symbol === symbol
-                              );
-                              const balanceText = tokenBalance 
-                                ? ` (${tokenBalance.formattedBalance})`
-                                : ' (0.000000)';
-                              
-                              return {
-                                value: symbol,
-                                label: `${token.name} | $${symbol}${balanceText}`,
-                                icon: token.logoUrl,
-                              };
-                            })}
-                            value={recipient.token}
-                            onChange={(value) => updateRecipient(index, "token", value)}
-                            placeholder="Select a token"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Bottom Half */}
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <label className="block text-sm text-[#171717] tracking-tight">
-                            Transfer Amount
-                          </label>
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <span>
-                              Bal: {tokenBalance?.formattedBalance || "0"}
-                            </span>
-                            <button
-                              onClick={() => {
-                                if (tokenBalance) {
-                                  updateRecipient(
-                                    index,
-                                    "amount",
-                                    tokenBalance.formattedBalance,
-                                  );
-                                }
-                              }}
-                              className="text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
-                              type="button"
-                            >
-                              MAX
-                            </button>
-                          </div>
-                        </div>
-                        <p className="text-xs text-[#737373] tracking-tight  mb-1">
-                          Amount of tokens you want to send
-                        </p>
-                        <input
-                          type="number"
-                          value={recipient.amount}
-                          onChange={(e) =>
-                            updateRecipient(index, "amount", e.target.value)
-                          }
-                          placeholder="0.0"
-                          step="any"
-                          min="0"
-                          className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
+                      <button
+                        onClick={() => toggleRecipientCollapse(index)}
+                        className="text-gray-500 hover:text-gray-700 p-2 transition-colors cursor-pointer"
+                        type="button"
+                      >
+                        {isCollapsed ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronUp className="w-4 h-4" />
+                        )}
+                      </button>
                     </div>
                   </div>
-                )}
+
+                  {/* Content */}
+                  {!isCollapsed && (
+                    <div className="px-4 pb-4">
+                      <div className="bg-white rounded-lg p-4">
+                        {/* Top Half */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          {/* Wallet Address */}
+                          <div>
+                            <label className="block text-sm text-[#171717] tracking-tight">
+                              Wallet Address
+                            </label>
+                            <p className="text-xs text-[#737373] tracking-tight mb-1">
+                              Enter the address
+                            </p>
+                            <input
+                              type="text"
+                              value={recipient.address}
+                              onChange={(e) =>
+                                updateRecipient(
+                                  index,
+                                  "address",
+                                  e.target.value,
+                                )
+                              }
+                              placeholder="0x..."
+                              className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            {addressErrors[index] && (
+                              <p className="text-xs text-red-500 mt-1">
+                                {addressErrors[index]}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Token Selector */}
+                          <div>
+                            <label className="block text-sm text-[#171717] tracking-tight">
+                              Select a token
+                            </label>
+                            <p className="text-xs text-[#737373] tracking-tight mb-1">
+                              Make sure you select the correct token
+                            </p>
+                            <CustomDropdown
+                              options={Object.entries(tokens).map(
+                                ([symbol, token]) => {
+                                  const tokenBalance = tokenBalances?.find(
+                                    (balance) =>
+                                      balance.token.symbol === symbol,
+                                  );
+                                  const balanceText = tokenBalance
+                                    ? ` (${tokenBalance.formattedBalance})`
+                                    : " (0.000000)";
+
+                                  return {
+                                    value: symbol,
+                                    label: `${token.name} | $${symbol}${balanceText}`,
+                                    icon: token.logoUrl,
+                                  };
+                                },
+                              )}
+                              value={recipient.token}
+                              onChange={(value) =>
+                                updateRecipient(index, "token", value)
+                              }
+                              placeholder="Select a token"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Bottom Half */}
+                        <div>
+                          <div className="flex items-center justify-between">
+                            <label className="block text-sm text-[#171717] tracking-tight">
+                              Transfer Amount
+                            </label>
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <span>
+                                Bal: {tokenBalance?.formattedBalance || "0"}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  if (tokenBalance) {
+                                    updateRecipient(
+                                      index,
+                                      "amount",
+                                      tokenBalance.formattedBalance,
+                                    );
+                                  }
+                                }}
+                                className="text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+                                type="button"
+                              >
+                                MAX
+                              </button>
+                            </div>
+                          </div>
+                          <p className="text-xs text-[#737373] tracking-tight  mb-1">
+                            Amount of tokens you want to send
+                          </p>
+                          <input
+                            type="number"
+                            value={recipient.amount}
+                            onChange={(e) =>
+                              updateRecipient(index, "amount", e.target.value)
+                            }
+                            placeholder="0.0"
+                            step="any"
+                            min="0"
+                            className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Add New Recipient - Full Width */}
+          <div className="bg-[#FAFAFA] rounded-lg p-4 py-2 mb-6">
+            <button
+              onClick={addRecipient}
+              disabled={isLoading}
+              className="w-full text-center text-gray-700 hover:text-gray-900 transition-colors flex items-center justify-center space-x-4 cursor-pointer"
+            >
+              Add a new recipient{" "}
+              <span>
+                <Plus size={16} />
+              </span>
+            </button>
+          </div>
+
+          {usePaymaster && (
+            <div className="bg-[#0ED0651A] border-none rounded-lg p-2 mb-6">
+              <div className="flex items-center justify-between">
+                <span className="text-[#0ED065] text-sm">
+                  No Gas Fees Required
+                </span>
+                <span className="bg-[#0ED065] text-white text-xs font-medium px-3 py-1 rounded-lg">
+                  Gasless
+                </span>
               </div>
-            );
-          })}
+            </div>
+          )}
         </div>
 
-        {/* Add New Recipient - Full Width */}
-        <div className="bg-[#FAFAFA] rounded-lg p-4 py-2 mb-6">
+        {/* Footer - Always at Bottom */}
+        <div className="bg-white border-t border-gray-200 p-4 flex items-center justify-between">
+          <span className="text-sm text-gray-600">
+            {recipients.length} Recipient{recipients.length > 1 ? "s" : ""}
+          </span>
+
           <button
-            onClick={addRecipient}
-            disabled={isLoading}
-            className="w-full text-center text-gray-700 hover:text-gray-900 transition-colors flex items-center justify-center space-x-4 cursor-pointer"
+            onClick={handleMultiSend}
+            disabled={isLoading || !smartAccount}
+            className="bg-[#0075FF] text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            Add a new recipient{" "}
-            <span>
-              <Plus size={16} />
-            </span>
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Sending Transaction...
+              </div>
+            ) : (
+              "Send"
+            )}
           </button>
         </div>
-
-        {usePaymaster && (
-          <div className="bg-[#0ED0651A] border-none rounded-lg p-2 mb-6">
-            <div className="flex items-center justify-between">
-              <span className="text-[#0ED065] text-sm">
-                No Gas Fees Required
-              </span>
-              <span className="bg-[#0ED065] text-white text-xs font-medium px-3 py-1 rounded-lg">
-                Gasless
-              </span>
-            </div>
-          </div>
-        )}
       </div>
-
-      {/* Footer - Always at Bottom */}
-      <div className="bg-white border-t border-gray-200 p-4 flex items-center justify-between">
-        <span className="text-sm text-gray-600">
-          {recipients.length} Recipient{recipients.length > 1 ? "s" : ""}
-        </span>
-
-        <button
-          onClick={handleMultiSend}
-          disabled={isLoading || !smartAccount}
-          className="bg-[#0075FF] text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        >
-          {isLoading ? (
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              Sending Transaction...
-            </div>
-          ) : (
-            "Send"
-          )}
-        </button>
-      </div>
-    </div>
     </>
   );
 }
