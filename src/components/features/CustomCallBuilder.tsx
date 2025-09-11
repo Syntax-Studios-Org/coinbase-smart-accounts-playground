@@ -26,6 +26,7 @@ import {
 } from "@/constants/contracts";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import TransactionCompletionModal from "@/components/ui/TransactionCompletionModal";
+import { BASE_SEPOLIA_TOKENS, SUPPORTED_NETWORKS } from "@/constants/tokens";
 
 interface CustomCall {
   to: string;
@@ -64,6 +65,7 @@ export default function CustomCallBuilder({
 
   const smartAccount = currentUser?.evmSmartAccounts?.[0];
   const isLoading = status === "pending" || isLocalLoading;
+  const tokens = SUPPORTED_NETWORKS[network];
 
   // Read storage value from contract
   const readStorageValue = async () => {
@@ -161,13 +163,13 @@ export default function CustomCallBuilder({
           ],
           functionName: "transfer",
           args: [
-            "0x742d35cc6634c0532925a3b8d0c9e3e0c0e61e64" as `0x${string}`,
-            BigInt("1000000"),
+            "0xf12c5C3bcf3C798FB82394a09F9B4EAcd9C53597" as `0x${string}`,
+            BigInt("100000000"),
           ],
         });
         setCalls([
           {
-            to: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            to: tokens["USDC"].address,
             value: "0",
             data: transferData,
           },
@@ -181,10 +183,24 @@ export default function CustomCallBuilder({
       action: () => {
         setShowStorageContract(false);
         const storageContract = getSimpleStorageContract(network);
-        const setValue123 = encodeFunctionData({
-          abi: SIMPLE_STORAGE_ABI,
-          functionName: "set",
-          args: [BigInt(123)],
+        const transferData = encodeFunctionData({
+          abi: [
+            {
+              name: "transfer",
+              type: "function",
+              inputs: [
+                { name: "to", type: "address" },
+                { name: "amount", type: "uint256" },
+              ],
+              outputs: [{ name: "", type: "bool" }],
+              stateMutability: "nonpayable",
+            },
+          ],
+          functionName: "transfer",
+          args: [
+            "0xf12c5C3bcf3C798FB82394a09F9B4EAcd9C53597" as `0x${string}`,
+            BigInt("100000000"),
+          ],
         });
         const setValue456 = encodeFunctionData({
           abi: SIMPLE_STORAGE_ABI,
@@ -193,7 +209,7 @@ export default function CustomCallBuilder({
         });
 
         setCalls([
-          { to: storageContract.address, value: "0", data: setValue123 },
+          { to: tokens["USDC"].address, value: "0", data: transferData },
           { to: storageContract.address, value: "0", data: setValue456 },
         ]);
         setCollapsedCalls([false, false]);
@@ -275,267 +291,276 @@ export default function CustomCallBuilder({
           description="Build and execute custom smart contract calls. Batch multiple operations into a single transaction for maximum efficiency."
         />
 
-      <div className="flex-1 mx-[15%] px-6 pb-6">
-        {errorMessage && (
-          <div className="bg-red-50 border-none rounded-lg p-4 py-2 mb-6">
-            <div className="flex items-center gap-2">
-              <span className="text-red-500">❌</span>
-              <span className="text-red-800">{errorMessage}</span>
+        <div className="flex-1 mx-[15%] px-6 pb-6">
+          {errorMessage && (
+            <div className="bg-red-50 border-none rounded-lg p-4 py-2 mb-6">
+              <div className="flex items-center gap-2">
+                <span className="text-red-500">❌</span>
+                <span className="text-red-800">{errorMessage}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Preset Buttons */}
+          <div className="mb-6">
+            <h4 className="text-sm font-medium text-gray-500 mb-3">
+              Quick Presets
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {presetCalls.map((preset) => {
+                const IconComponent = preset.icon;
+                return (
+                  <button
+                    key={preset.name}
+                    onClick={preset.action}
+                    className="bg-[#FAFAFA] rounded-lg p-3 text-center hover:bg-gray-100 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-1 justify-center">
+                      <IconComponent className="w-4 h-4 text-[#737373]" />
+                      <span className="text-xs text-[#737373] tracking-tight">
+                        {preset.name}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
-        )}
 
-        {/* Preset Buttons */}
-        <div className="mb-6">
-          <h4 className="text-sm font-medium text-gray-500 mb-3">
-            Quick Presets
-          </h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {presetCalls.map((preset) => {
-              const IconComponent = preset.icon;
-              return (
-                <button
-                  key={preset.name}
-                  onClick={preset.action}
-                  className="bg-[#FAFAFA] rounded-lg p-3 text-center hover:bg-gray-100 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-1 justify-center">
-                    <IconComponent className="w-4 h-4 text-[#737373]" />
-                    <span className="text-xs text-[#737373] tracking-tight">{preset.name}</span>
+          {/* Storage Contract Details */}
+          {showStorageContract && (
+            <div className="bg-[#FAFAFA] rounded-lg p-4 mb-6">
+              <h4 className="text-sm font-medium text-gray-900 mb-4">
+                Simple Storage Contract
+              </h4>
+
+              {/* Set New Value Section */}
+              <div className="bg-white rounded-lg p-4 mb-4">
+                <label className="block text-sm text-[#171717] tracking-tight">
+                  Set New Value
+                </label>
+                <p className="text-xs text-[#737373] tracking-tight mb-1">
+                  Enter a number to store in the contract
+                </p>
+                <div className="flex gap-3">
+                  <input
+                    type="number"
+                    value={storageInputValue}
+                    onChange={(e) => setStorageInputValue(e.target.value)}
+                    placeholder="Enter number"
+                    className="flex-1 px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <button
+                    onClick={() => {
+                      const storageContract = getSimpleStorageContract(network);
+                      const setValue = encodeFunctionData({
+                        abi: SIMPLE_STORAGE_ABI,
+                        functionName: "set",
+                        args: [BigInt(storageInputValue || "42")],
+                      });
+                      setCalls([
+                        {
+                          to: storageContract.address,
+                          value: "0",
+                          data: setValue,
+                        },
+                      ]);
+                      setCollapsedCalls([false]);
+                    }}
+                    className="px-4 py-2 bg-[#0075FF] text-white rounded-md hover:bg-blue-600 transition-colors text-sm whitespace-nowrap"
+                  >
+                    Update Call
+                  </button>
+                </div>
+              </div>
+
+              {/* Current Value Section */}
+              <div className="bg-white rounded-lg p-4 mb-4">
+                <label className="block text-sm text-[#171717] tracking-tight mb-2">
+                  Current Value in Contract
+                </label>
+                <div className="flex gap-3">
+                  <div className="flex-1 px-3 py-2 bg-gray-50 border border-[#E5E5E5] rounded-md text-gray-900 font-mono">
+                    {loadingStorage
+                      ? "Loading..."
+                      : storageValue || "Not loaded"}
                   </div>
-                </button>
+                  <button
+                    onClick={readStorageValue}
+                    disabled={loadingStorage}
+                    className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors text-sm disabled:opacity-50 whitespace-nowrap cursor-pointer"
+                  >
+                    Refresh
+                  </button>
+                </div>
+              </div>
+
+              {/* Contract Info */}
+              <div className="text-xs text-gray-600 bg-white rounded-lg p-3">
+                <span className="font-medium">Contract Address:</span>{" "}
+                <span className="font-mono">
+                  {getSimpleStorageContract(network).address}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Custom Calls */}
+          <div className="space-y-4 mb-6">
+            {calls.map((call, index) => {
+              const isCollapsed = collapsedCalls[index];
+
+              return (
+                <div key={index} className="bg-[#FAFAFA] rounded-lg">
+                  {/* Header */}
+                  <div className="flex items-center justify-between p-4 py-2">
+                    <span className="font-normal text-[13px] text-[#737373] tracking-tight">
+                      Call {index + 1}
+                    </span>
+                    <div className="flex items-center">
+                      {calls.length > 1 && (
+                        <>
+                          <button
+                            onClick={() => removeCall(index)}
+                            className="text-red-500 hover:text-red-700 p-2 transition-colors cursor-pointer"
+                            type="button"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                          <div className="w-px h-6 bg-gray-300 mx-2" />
+                        </>
+                      )}
+                      <button
+                        onClick={() => toggleCallCollapse(index)}
+                        className="text-gray-500 hover:text-gray-700 p-2 transition-colors cursor-pointer"
+                        type="button"
+                      >
+                        {isCollapsed ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronUp className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  {!isCollapsed && (
+                    <div className="px-4 pb-4">
+                      <div className="bg-white rounded-lg p-4 space-y-4">
+                        {/* Contract Address */}
+                        <div>
+                          <label className="block text-sm text-[#171717] tracking-tight">
+                            Contract Address
+                          </label>
+                          <p className="text-xs text-[#737373] tracking-tight mb-1">
+                            Enter the contract address
+                          </p>
+                          <input
+                            type="text"
+                            value={call.to}
+                            onChange={(e) =>
+                              updateCall(index, "to", e.target.value)
+                            }
+                            placeholder="0x..."
+                            className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+
+                        {/* Value */}
+                        <div>
+                          <label className="block text-sm text-[#171717] tracking-tight">
+                            Value (ETH)
+                          </label>
+                          <p className="text-xs text-[#737373] tracking-tight mb-1">
+                            Amount of ETH to send (usually 0)
+                          </p>
+                          <input
+                            type="text"
+                            value={call.value}
+                            onChange={(e) =>
+                              updateCall(index, "value", e.target.value)
+                            }
+                            placeholder="0"
+                            className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+
+                        {/* Call Data */}
+                        <div>
+                          <label className="block text-sm text-[#171717] tracking-tight">
+                            Call Data
+                          </label>
+                          <p className="text-xs text-[#737373] tracking-tight mb-1">
+                            Encoded function call data
+                          </p>
+                          <textarea
+                            value={call.data}
+                            onChange={(e) =>
+                              updateCall(index, "data", e.target.value)
+                            }
+                            placeholder="0x..."
+                            rows={3}
+                            className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
-        </div>
 
-        {/* Storage Contract Details */}
-        {showStorageContract && (
-          <div className="bg-[#FAFAFA] rounded-lg p-4 mb-6">
-            <h4 className="text-sm font-medium text-gray-900 mb-4">
-              Simple Storage Contract
-            </h4>
-
-            {/* Set New Value Section */}
-            <div className="bg-white rounded-lg p-4 mb-4">
-              <label className="block text-sm text-[#171717] tracking-tight">
-                Set New Value
-              </label>
-              <p className="text-xs text-[#737373] tracking-tight mb-1">Enter a number to store in the contract</p>
-              <div className="flex gap-3">
-                <input
-                  type="number"
-                  value={storageInputValue}
-                  onChange={(e) => setStorageInputValue(e.target.value)}
-                  placeholder="Enter number"
-                  className="flex-1 px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <button
-                  onClick={() => {
-                    const storageContract = getSimpleStorageContract(network);
-                    const setValue = encodeFunctionData({
-                      abi: SIMPLE_STORAGE_ABI,
-                      functionName: "set",
-                      args: [BigInt(storageInputValue || "42")],
-                    });
-                    setCalls([
-                      {
-                        to: storageContract.address,
-                        value: "0",
-                        data: setValue,
-                      },
-                    ]);
-                    setCollapsedCalls([false]);
-                  }}
-                  className="px-4 py-2 bg-[#0075FF] text-white rounded-md hover:bg-blue-600 transition-colors text-sm whitespace-nowrap"
-                >
-                  Update Call
-                </button>
-              </div>
-            </div>
-
-            {/* Current Value Section */}
-            <div className="bg-white rounded-lg p-4 mb-4">
-              <label className="block text-sm text-[#171717] tracking-tight mb-2">
-                Current Value in Contract
-              </label>
-              <div className="flex gap-3">
-                <div className="flex-1 px-3 py-2 bg-gray-50 border border-[#E5E5E5] rounded-md text-gray-900 font-mono">
-                  {loadingStorage
-                    ? "Loading..."
-                    : storageValue || "Not loaded"}
-                </div>
-                <button
-                  onClick={readStorageValue}
-                  disabled={loadingStorage}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors text-sm disabled:opacity-50 whitespace-nowrap cursor-pointer"
-                >
-                  Refresh
-                </button>
-              </div>
-            </div>
-
-            {/* Contract Info */}
-            <div className="text-xs text-gray-600 bg-white rounded-lg p-3">
-              <span className="font-medium">Contract Address:</span>{" "}
-              <span className="font-mono">{getSimpleStorageContract(network).address}</span>
-            </div>
+          <div className="bg-[#FAFAFA] rounded-lg p-4 py-2 mb-6">
+            <button
+              onClick={addCall}
+              disabled={isLoading}
+              className="w-full text-center text-gray-700 hover:text-gray-900 transition-colors flex items-center justify-center space-x-4 cursor-pointer"
+            >
+              Add a new call{" "}
+              <span>
+                <Plus size={16} />
+              </span>
+            </button>
           </div>
-        )}
 
-        {/* Custom Calls */}
-        <div className="space-y-4 mb-6">
-          {calls.map((call, index) => {
-            const isCollapsed = collapsedCalls[index];
-
-            return (
-              <div key={index} className="bg-[#FAFAFA] rounded-lg">
-                {/* Header */}
-                <div className="flex items-center justify-between p-4 py-2">
-                  <span className="font-normal text-[13px] text-[#737373] tracking-tight">
-                    Call {index + 1}
-                  </span>
-                  <div className="flex items-center">
-                    {calls.length > 1 && (
-                      <>
-                        <button
-                          onClick={() => removeCall(index)}
-                          className="text-red-500 hover:text-red-700 p-2 transition-colors cursor-pointer"
-                          type="button"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                        <div className="w-px h-6 bg-gray-300 mx-2" />
-                      </>
-                    )}
-                    <button
-                      onClick={() => toggleCallCollapse(index)}
-                      className="text-gray-500 hover:text-gray-700 p-2 transition-colors cursor-pointer"
-                      type="button"
-                    >
-                      {isCollapsed ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronUp className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Content */}
-                {!isCollapsed && (
-                  <div className="px-4 pb-4">
-                    <div className="bg-white rounded-lg p-4 space-y-4">
-                      {/* Contract Address */}
-                      <div>
-                        <label className="block text-sm text-[#171717] tracking-tight">
-                          Contract Address
-                        </label>
-                        <p className="text-xs text-[#737373] tracking-tight mb-1">
-                          Enter the contract address
-                        </p>
-                        <input
-                          type="text"
-                          value={call.to}
-                          onChange={(e) =>
-                            updateCall(index, "to", e.target.value)
-                          }
-                          placeholder="0x..."
-                          className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-
-                      {/* Value */}
-                      <div>
-                        <label className="block text-sm text-[#171717] tracking-tight">
-                          Value (ETH)
-                        </label>
-                        <p className="text-xs text-[#737373] tracking-tight mb-1">
-                          Amount of ETH to send (usually 0)
-                        </p>
-                        <input
-                          type="text"
-                          value={call.value}
-                          onChange={(e) =>
-                            updateCall(index, "value", e.target.value)
-                          }
-                          placeholder="0"
-                          className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-
-                      {/* Call Data */}
-                      <div>
-                        <label className="block text-sm text-[#171717] tracking-tight">
-                          Call Data
-                        </label>
-                        <p className="text-xs text-[#737373] tracking-tight mb-1">
-                          Encoded function call data
-                        </p>
-                        <textarea
-                          value={call.data}
-                          onChange={(e) =>
-                            updateCall(index, "data", e.target.value)
-                          }
-                          placeholder="0x..."
-                          rows={3}
-                          className="w-full px-3 py-2 border border-[#E5E5E5] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
+          {usePaymaster && (
+            <div className="bg-[#0ED0651A] border-none rounded-lg p-2 mb-6">
+              <div className="flex items-center justify-between">
+                <span className="text-[#0ED065] text-sm">
+                  No Gas Fees Required
+                </span>
+                <span className="bg-[#0ED065] text-white text-xs font-medium px-3 py-1 rounded-lg">
+                  Gasless
+                </span>
               </div>
-            );
-          })}
+            </div>
+          )}
         </div>
 
-        <div className="bg-[#FAFAFA] rounded-lg p-4 py-2 mb-6">
+        {/* Footer - Always at Bottom */}
+        <div className="bg-white border-t border-gray-200 p-4 flex items-center justify-between">
+          <span className="text-sm text-gray-600">
+            {calls.length} Call{calls.length > 1 ? "s" : ""}
+          </span>
+
           <button
-            onClick={addCall}
-            disabled={isLoading}
-            className="w-full text-center text-gray-700 hover:text-gray-900 transition-colors flex items-center justify-center space-x-4 cursor-pointer"
+            onClick={handleExecute}
+            disabled={isLoading || !smartAccount}
+            className="bg-[#0075FF] text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            Add a new call <span><Plus size={16} /></span>
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Executing...
+              </div>
+            ) : (
+              "Execute"
+            )}
           </button>
         </div>
-
-        {usePaymaster && (
-          <div className="bg-[#0ED0651A] border-none rounded-lg p-2 mb-6">
-            <div className="flex items-center justify-between">
-              <span className="text-[#0ED065] text-sm">
-                No Gas Fees Required
-              </span>
-              <span className="bg-[#0ED065] text-white text-xs font-medium px-3 py-1 rounded-lg">
-                Gasless
-              </span>
-            </div>
-          </div>
-        )}
       </div>
-
-      {/* Footer - Always at Bottom */}
-      <div className="bg-white border-t border-gray-200 p-4 flex items-center justify-between">
-        <span className="text-sm text-gray-600">
-          {calls.length} Call{calls.length > 1 ? "s" : ""}
-        </span>
-
-        <button
-          onClick={handleExecute}
-          disabled={isLoading || !smartAccount}
-          className="bg-[#0075FF] text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        >
-          {isLoading ? (
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              Executing...
-            </div>
-          ) : (
-            "Execute"
-          )}
-        </button>
-      </div>
-    </div>
     </>
   );
 }
