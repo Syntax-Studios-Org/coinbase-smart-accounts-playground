@@ -4,6 +4,7 @@ import { useTokenBalances } from "@/hooks/useTokenBalances";
 import { SUPPORTED_NETWORKS } from "@/constants/tokens";
 import { LoadingSkeleton } from "@coinbase/cdp-react/components/ui/LoadingSkeleton";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Props {
   network?: "base" | "base-sepolia";
@@ -19,7 +20,11 @@ export default function UserBalance(props: Props) {
     () => Object.values(SUPPORTED_NETWORKS[network]),
     [network],
   );
-  const { data: tokenBalances, isLoading, isRefetching } = useTokenBalances(network, tokens);
+  const {
+    data: tokenBalances,
+    isLoading,
+    isRefetching,
+  } = useTokenBalances(network, tokens);
 
   return (
     <div>
@@ -30,7 +35,9 @@ export default function UserBalance(props: Props) {
           <LoadingSkeleton className="h-16 w-full rounded-lg" />
         </div>
       ) : (
-        <div className={`space-y-3 ${isRefetching ? 'opacity-75 transition-opacity' : ''}`}>
+        <div
+          className={`space-y-3 ${isRefetching ? "opacity-75 transition-opacity" : ""}`}
+        >
           {tokenBalances
             .sort((a, b) => {
               // Sort by balance: non-zero balances first, then zero balances
@@ -78,6 +85,18 @@ export default function UserBalance(props: Props) {
               </div>
             ))}
         </div>
+      )}
+      {network === "base-sepolia" && (
+        <p className="mt-6 text-center text-sm text-gray-500">
+          Get testnet tokens from{" "}
+          <Link
+            href={"https://portal.cdp.coinbase.com/products/faucet"}
+            target="_blank"
+            className="text-blue-600 font-medium"
+          >
+            CDP Faucet
+          </Link>
+        </p>
       )}
     </div>
   );

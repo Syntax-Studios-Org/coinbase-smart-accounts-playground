@@ -1,8 +1,21 @@
 "use client";
 
-import { useCurrentUser, useIsSignedIn, useSignOut } from "@coinbase/cdp-hooks";
+import {
+  useCurrentUser,
+  useIsSignedIn,
+  useSignOut,
+  useExportEvmAccount,
+  useEvmAddress,
+} from "@coinbase/cdp-hooks";
 import { useState } from "react";
-import { ChevronDown, Copy, LogOut } from "lucide-react";
+import {
+  ChevronDown,
+  Copy,
+  Download,
+  LogOut,
+  Check,
+  Loader2,
+} from "lucide-react";
 import Image from "next/image";
 import { copyToClipboard } from "@/utils/clipboard";
 
@@ -13,18 +26,43 @@ interface AddressDropdownProps {
 /**
  * Address dropdown component for the top left corner
  */
-export default function AddressDropdown({ selectedNetwork }: AddressDropdownProps) {
+export default function AddressDropdown({
+  selectedNetwork,
+}: AddressDropdownProps) {
   const { isSignedIn } = useIsSignedIn();
   const { signOut } = useSignOut();
   const { currentUser } = useCurrentUser();
   const smartAccount = currentUser?.evmSmartAccounts?.[0];
+  const embeddedAccount = currentUser?.evmAccounts?.[0];
+  const { exportEvmAccount } = useExportEvmAccount();
   const [isOpen, setIsOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportSuccess, setExportSuccess] = useState(false);
 
-  const networkLabel = selectedNetwork === "base-sepolia" ? "TESTNET" : "MAINNET";
+  const networkLabel =
+    selectedNetwork === "base-sepolia" ? "TESTNET" : "MAINNET";
 
   if (!isSignedIn || !smartAccount) {
     return null;
   }
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      setExportSuccess(false);
+      const { privateKey } = await exportEvmAccount({
+        evmAccount: embeddedAccount!,
+      });
+      await copyToClipboard(privateKey);
+      setExportSuccess(true);
+      // Reset success state after 2 seconds
+      setTimeout(() => setExportSuccess(false), 2000);
+    } catch (error) {
+      console.error("Error exporting account:", error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div className="relative">
@@ -70,6 +108,29 @@ export default function AddressDropdown({ selectedNetwork }: AddressDropdownProp
                   <Copy className="w-4 h-4 text-gray-500" />
                 </button>
               </div>
+            </div>
+            {/*Export Private key*/}
+            <div className="p-2">
+              <button
+                onClick={() => {
+                  handleExport();
+                }}
+                disabled={isExporting}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-900 hover:bg-gray-100 rounded-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isExporting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : exportSuccess ? (
+                  <Check className="w-4 h-4 text-green-600" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                {isExporting
+                  ? "Exporting..."
+                  : exportSuccess
+                    ? "Copied!"
+                    : "Export Private Key"}
+              </button>
             </div>
             <div className="p-2">
               <button
