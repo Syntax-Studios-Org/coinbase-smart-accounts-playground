@@ -110,7 +110,7 @@ export default function PrivateKeyExport() {
           <button
             onClick={handleCopyToClipboard}
             disabled={!isRevealed || isCopying}
-            className="w-full mt-2 mb-6 flex items-center justify-center gap-2 bg-[#FAFAFA] disabled:bg-gray-300 disabled:cursor-not-allowed text-[#171717] py-2 px-4 rounded-md transition-colors"
+            className="w-full cursor-pointer mt-2 mb-6 flex items-center justify-center gap-2 bg-[#FAFAFA] disabled:bg-gray-300 disabled:cursor-not-allowed text-[#171717] py-2 px-4 rounded-md transition-colors"
           >
             <Copy className="w-4 h-4" />
             {isCopying ? "Copied!" : "Copy to Clipboard"}

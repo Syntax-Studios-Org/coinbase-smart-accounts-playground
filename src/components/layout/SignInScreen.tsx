@@ -12,7 +12,7 @@ export default function SignInScreen() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome!</h1>
           <p className="text-gray-600 mb-6">Please sign in to continue to the Smart Account Playground.</p>
-          <AuthButton className="bg-black text-white" />
+          <AuthButton className="bg-black text-white cursor-pointer" />
         </div>
       </div>
     </div>
