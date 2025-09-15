@@ -7,7 +7,7 @@ import { LoadingSpinner } from "@coinbase/cdp-react/components/ui/LoadingSpinner
  */
 export default function Loading() {
   return (
-    <main>
+    <main className="min-h-screen flex items-center justify-center bg-[#F5F5F5]">
       <h1 className="sr-only">Loading</h1>
       <LoadingSpinner />
     </main>
