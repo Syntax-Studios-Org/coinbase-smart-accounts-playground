@@ -6,6 +6,7 @@ import MultiSendTransaction from "@/components/features/MultiSendTransaction";
 import CustomCallBuilder from "@/components/features/CustomCallBuilder";
 import PaymasterTab from "@/components/features/PaymasterTab";
 import UserBalance from "@/components/features/UserBalance";
+import PrivateKeyExport from "@/components/features/PrivateKeyExport";
 import AddressDropdown from "@/components/ui/AddressDropdown";
 import Link from "next/link";
 
@@ -16,6 +17,7 @@ type PlaygroundTab = "multi-send" | "custom-calls" | "paymaster";
  */
 export default function SmartAccountPlayground() {
   const [activeTab, setActiveTab] = useState<PlaygroundTab>("multi-send");
+  const [showPrivateKeyExport, setShowPrivateKeyExport] = useState(false);
   const [selectedNetwork, setSelectedNetwork] =
     useState<"base-sepolia">("base-sepolia");
   const [usePaymaster, setUsePaymaster] = useState(true);
@@ -82,7 +84,10 @@ export default function SmartAccountPlayground() {
       <div className="w-80 bg-[#F5F5F5] p-6">
         {/* Address Dropdown */}
         <div className="mb-8">
-          <AddressDropdown selectedNetwork={selectedNetwork} />
+          <AddressDropdown
+            selectedNetwork={selectedNetwork}
+            onPrivateKeyExport={() => setShowPrivateKeyExport(true)}
+          />
         </div>
 
         {/* Navigation Tabs */}
@@ -98,7 +103,10 @@ export default function SmartAccountPlayground() {
                       ? "text-[#0075FF]"
                       : "text-[#404040] hover:text-[#0075FF]"
                   }`}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => {
+                    setShowPrivateKeyExport(false);
+                    setActiveTab(tab.id);
+                  }}
                 >
                   <IconComponent className="w-5 h-5" />
                   <span className="font-medium text-base">{tab.label}</span>
@@ -187,29 +195,35 @@ export default function SmartAccountPlayground() {
 
       {/* Main Content */}
       <div className="flex-1 bg-white m-6 ml-3 rounded-md overflow-auto">
-        {activeTab === "multi-send" && (
-          <MultiSendTransaction
-            network={selectedNetwork}
-            usePaymaster={usePaymaster}
-            paymasterUrl={paymasterUrl}
-          />
-        )}
+        {showPrivateKeyExport ? (
+          <PrivateKeyExport />
+        ) : (
+          <>
+            {activeTab === "multi-send" && (
+              <MultiSendTransaction
+                network={selectedNetwork}
+                usePaymaster={usePaymaster}
+                paymasterUrl={paymasterUrl}
+              />
+            )}
 
-        {activeTab === "custom-calls" && (
-          <CustomCallBuilder
-            network={selectedNetwork}
-            usePaymaster={usePaymaster}
-            paymasterUrl={paymasterUrl}
-          />
-        )}
+            {activeTab === "custom-calls" && (
+              <CustomCallBuilder
+                network={selectedNetwork}
+                usePaymaster={usePaymaster}
+                paymasterUrl={paymasterUrl}
+              />
+            )}
 
-        {activeTab === "paymaster" && (
-          <PaymasterTab
-            selectedNetwork={selectedNetwork}
-            usePaymaster={usePaymaster}
-            paymasterUrl={paymasterUrl}
-            onPaymasterUrlChange={handlePaymasterUrlChange}
-          />
+            {activeTab === "paymaster" && (
+              <PaymasterTab
+                selectedNetwork={selectedNetwork}
+                usePaymaster={usePaymaster}
+                paymasterUrl={paymasterUrl}
+                onPaymasterUrlChange={handlePaymasterUrlChange}
+              />
+            )}
+          </>
         )}
       </div>
     </div>
