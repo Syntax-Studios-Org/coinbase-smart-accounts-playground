@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     // Fetch balances from CDP
     const result = await cdp.evm.listTokenBalances({
       address,
-      network: network as any,
+      network: network as "base-sepolia",
     });
 
     const serializedBalances = result.balances.map(balance => ({
